@@ -1,5 +1,6 @@
 {
   "name": "ci-menu",
+  "productName": "CI Menu",
   "version": "0.0.0",
   "description": "Cross platform tray monitor for CI projects",
   "main": "./src/app/main.js",
@@ -41,7 +42,10 @@
     "url": "https://github.com/riggerthegeek/ci-menu/issues"
   },
   "homepage": "https://github.com/riggerthegeek/ci-menu#readme",
-  "dependencies": {},
+  "dependencies": {
+    "electron": "^1.7.8",
+    "electron-compile": "^6.4.2"
+  },
   "devDependencies": {
     "chai": "^4.1.0",
     "chai-as-promised": "^7.1.1",
