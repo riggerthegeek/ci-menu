@@ -5,12 +5,17 @@
 /* Node modules */
 
 /* Third-party modules */
-import { app, Menu, Tray } from 'electron';
+import { app, Menu, nativeImage, Tray } from 'electron';
 
 /* Files */
 
 export default () => {
-  const tray = new Tray(`${__dirname}/../assets/img/logo.png`);
+  const icon = nativeImage.createFromPath(`${__dirname}/../assets/img/logo.png`)
+    .resize({
+      width: 24,
+    });
+
+  const tray = new Tray(icon);
 
   tray.on('click', () => {
     app.emit('activate');
@@ -19,7 +24,7 @@ export default () => {
   const contextMenu = Menu.buildFromTemplate([{
     label: 'Item2',
     click () {
-      // tray.emit('click');
+      console.log('hello');
     },
   }, {
     type: 'separator',
