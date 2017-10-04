@@ -91,6 +91,9 @@ app
     }
     mainWindow.show();
   })
+  .on('window-all-closed', () => {
+    /* Don't quit app if last window closed */
+  })
   .on('ready', createWindow);
 
 module.exports = app;
