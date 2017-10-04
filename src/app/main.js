@@ -6,7 +6,6 @@
  */
 
 /* Node modules */
-import path from 'path';
 
 /* Third-party modules */
 import { app, BrowserWindow, shell, screen } from 'electron';
@@ -30,7 +29,8 @@ function createWindow () {
   let maxWidth = null;
   let xPos = 0;
 
-  const width = 800;
+  const height = 600;
+  const width = 400;
 
   if (mainDisplay) {
     maxWidth = mainDisplay.workAreaSize.width;
@@ -40,8 +40,8 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     frame: false,
     fullscreenable: false,
-    height: 600,
-    icon: path.join(__dirname, '..', 'assets', 'img', 'logo.png'),
+    height,
+    icon: `${__dirname}/../assets/img/logo.png`,
     maximizable: false,
     movable: false,
     resizable: false,
