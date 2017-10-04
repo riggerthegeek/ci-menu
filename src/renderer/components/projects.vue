@@ -15,6 +15,7 @@
 
   export default {
     data () {
+      console.log('projects');
       return {};
     },
   };

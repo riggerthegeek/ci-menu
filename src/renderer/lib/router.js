@@ -15,10 +15,10 @@ import projects from '../components/projects.vue';
 Vue.use(VueRouter);
 
 const routes = [{
-  path: '/',
+  path: '/_',
   component: layout,
   children: [{
-    path: 'projects',
+    path: '/projects',
     name: 'projects',
     component: projects,
   }],
