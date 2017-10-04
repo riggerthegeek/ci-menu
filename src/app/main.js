@@ -89,7 +89,12 @@ app
     if (mainWindow === null) {
       createWindow();
     }
-    mainWindow.show();
+
+    if (mainWindow.isVisible()) {
+      mainWindow.hide();
+    } else {
+      mainWindow.show();
+    }
   })
   .on('window-all-closed', () => {
     /* Don't quit app if last window closed */
