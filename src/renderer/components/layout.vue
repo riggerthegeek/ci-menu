@@ -18,7 +18,10 @@
           row
           wrap
         )
-          router-view
+          v-flex(
+            xs12
+          )
+            router-view
 </template>
 
 <script>
