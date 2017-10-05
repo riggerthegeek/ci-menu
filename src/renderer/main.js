@@ -6,10 +6,13 @@
 
 /* Third-party modules */
 import Vue from 'vue/dist/vue.min';
+import Vuetify from 'vuetify';
 
 /* Files */
 import App from './components/app.vue';
 import router from './lib/router';
+
+Vue.use(Vuetify);
 
 // eslint-disable-next-line no-new
 new Vue({
