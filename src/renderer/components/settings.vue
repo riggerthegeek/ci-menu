@@ -17,6 +17,6 @@
     data () {
       console.log('settings');
       return {};
-    }
+    },
   };
 </script>

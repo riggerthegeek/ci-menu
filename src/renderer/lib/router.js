@@ -26,11 +26,11 @@ const routes = [{
   }, {
     path: '/alerts',
     name: 'alerts',
-    component: alerts
+    component: alerts,
   }, {
     path: '/settings',
     name: 'settings',
-    component: settings
+    component: settings,
   }],
 }, {
   path: '*',
