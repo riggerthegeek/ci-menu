@@ -13,7 +13,7 @@ A single `<Projects>` node, the document root, which contains 0 or many `<Projec
 Each `<Project>` may have the following attributes:
 
 | name            | description                                                                                                                         | type                                                          | required  |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | --------- |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |:---------:|
 | name            | the name of the project                                                                                                             | string                                                        | yes       |
 | activity        | the current state of the project                                                                                                    | string enum : `Sleeping`, `Building`, `CheckingModifications` | yes       |
 | lastBuildStatus | a brief description of the last build                                                                                               | string enum : `Success`, `Failure`, `Exception`, `Unknown`    | yes       |
