@@ -49,7 +49,7 @@
   /* Node modules */
 
   /* Third-party modules */
-  import { shell } from 'electron';
+  import { remote, shell } from 'electron';
 
   /* Files */
 
@@ -58,23 +58,43 @@
     created () {
       this.$store.subscribe((mutation) => {
         if (mutation.type === 'updateRepos') {
-          this.repos = this.$store.getters.repos.reduce((result, { repos }) => {
-            repos.forEach((repo) => {
-              result.push({
-                status: repo.lastBuildStatus,
-                title: repo.name,
-                url: repo.webUrl,
+          const repositories = this.$store.getters.repos
+            .reduce((result, { repos }) => {
+              repos.forEach((repo) => {
+                const status = repo.lastBuildStatus.toLowerCase();
+
+                result.push({
+                  img: this.statusToImgName(status),
+                  status,
+                  title: repo.name,
+                  url: repo.webUrl,
+                });
               });
 
-              result.push({
-                divider: true,
-              });
+              return result;
+            }, [])
+            .sort((a, b) => {
+              if (a.title < b.title) {
+                return -1;
+              } else if (a.title > b.title) {
+                return 1;
+              }
+
+              return 0;
+            });
+
+          /* Update the tray */
+          remote.app.emit('update-repos', repositories);
+
+          this.loading = false;
+          this.repos = repositories.reduce((result, repo) => {
+            result.push(repo);
+            result.push({
+              divider: true,
             });
 
             return result;
           }, []);
-
-          this.loading = false;
         }
       });
     },
@@ -100,18 +120,23 @@
         return shell.openExternal(url);
       },
 
-      statusToImg (status) {
-        const path = 'assets/img/';
+      statusToImgName (status) {
         const statuses = {
-          exception: 'fail.png',
-          failure: 'fail.png',
-          success: 'pass.png',
-          unknown: 'unknown.png',
+          exception: 'fail',
+          failure: 'fail',
+          success: 'pass',
+          unknown: 'unknown',
         };
 
-        const img = statuses[status.toLowerCase()];
+        return statuses[status];
+      },
 
-        return `${path}${img}`;
+      statusToImg (status) {
+        const path = 'assets/img/';
+
+        const img = this.statusToImgName(status);
+
+        return `${path}${img}.png`;
       },
 
     },
