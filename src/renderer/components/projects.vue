@@ -1,37 +1,44 @@
 <template lang="jade">
-  v-list
-    template(
-      v-for="repo in repos"
+  div
+    div(
+      v-if='loading'
+    ) loading...
+
+    v-list(
+      v-else
     )
-      v-subheader(
-        v-if="repo.header"
-        v-text="repo.header"
+      template(
+        v-for="repo in repos"
       )
-      v-divider(
-        v-else-if="repo.divider"
-        v-bind:inset="repo.inset"
-      )
+        v-subheader(
+          v-if="repo.header"
+          v-text="repo.header"
+        )
+        v-divider(
+          v-else-if="repo.divider",
+          :inset="repo.inset"
+        )
 
-      v-list-tile(
-        avatar
-        v-else
-        v-bind:key="repo.title",
-        @click="openUrl(repo.url)"
-        download
-      )
+        v-list-tile(
+          avatar,
+          v-else,
+          :key="repo.title",
+          @click="openUrl(repo.url)"
+          download
+        )
 
-        v-list-tile-avatar
-          img(
-            v-bind:src="repo.img"
-          )
+          v-list-tile-avatar
+            img(
+              :src="statusToImg(repo.status)"
+            )
 
-        v-list-tile-content
-          v-list-tile-title(
-            v-html="repo.title"
-          )
-          v-list-tile-sub-title(
-            v-html="repo.subtitle"
-          )
+          v-list-tile-content
+            v-list-tile-title(
+              v-html="repo.title"
+            )
+            v-list-tile-sub-title(
+              v-html="repo.subtitle"
+            )
 </template>
 
 <script>
@@ -48,15 +55,34 @@
 
   export default {
 
+    created () {
+      this.$store.subscribe((mutation) => {
+        if (mutation.type === 'updateRepos') {
+          this.repos = this.$store.getters.repos.reduce((result, { repos }) => {
+            repos.forEach((repo) => {
+              result.push({
+                status: repo.lastBuildStatus,
+                title: repo.name,
+                url: repo.webUrl,
+              });
+
+              result.push({
+                divider: true,
+              });
+            });
+
+            return result;
+          }, []);
+
+          this.loading = false;
+        }
+      });
+    },
+
     data () {
       return {
-        repos: [{
-          img: 'assets/img/fail.png',
-          title: 'riggerthegeek/ci-menu',
-          url: 'https://travis-ci.org/riggerthegeek/ci-menu',
-        }, {
-          divider: true,
-        }],
+        loading: true,
+        repos: [],
       };
     },
 
@@ -72,6 +98,20 @@
        */
       openUrl (url) {
         return shell.openExternal(url);
+      },
+
+      statusToImg (status) {
+        const path = 'assets/img/';
+        const statuses = {
+          exception: 'fail.png',
+          failure: 'fail.png',
+          success: 'pass.png',
+          unknown: 'unknown.png',
+        };
+
+        const img = statuses[status.toLowerCase()];
+
+        return `${path}${img}`;
       },
 
     },

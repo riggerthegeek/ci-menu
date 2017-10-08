@@ -129,7 +129,7 @@ export default {
         })
         .then((data) => {
           /* Update the state with the new data */
-          commit('update', data);
+          commit('updateRepos', data);
 
           /* Return the state */
           return data;
@@ -146,7 +146,7 @@ export default {
 
   mutations: {
 
-    update (state, newState) {
+    updateRepos (state, newState) {
       Vue.set(state, 'repos', newState);
     },
 
