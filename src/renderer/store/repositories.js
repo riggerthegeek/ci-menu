@@ -36,7 +36,6 @@ export default {
     getSettings () {
       return Promise.resolve()
         .then(() => {
-
           try {
             /* Return the data */
             // eslint-disable-next-line global-require, import/no-dynamic-require
