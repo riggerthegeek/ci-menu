@@ -35,15 +35,29 @@ export default {
 
     getSettings () {
       return Promise.resolve()
-        .then(() => {
-          try {
-            /* Return the data */
-            // eslint-disable-next-line global-require, import/no-dynamic-require
-            return require(path.join(config.dataPath, config.dataFile));
-          } catch (err) {
-            /* Create the data path */
+        .then(() => new Promise((resolve, reject) => {
+          /* Return the data */
+          const filePath = path.join(config.dataPath, config.dataFile);
+
+          fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+
+            resolve(data);
+          });
+        }))
+        /* Convert to JSON */
+        .then(str => JSON.parse(str))
+        .catch((err) => {
+          if (err.code === 'ENOENT') {
+            /* File not present - ensure path exists */
             return fs.mkdirp(config.dataPath);
           }
+
+          /* Unknown error - just reject with error */
+          return Promise.reject(err);
         });
     },
 
