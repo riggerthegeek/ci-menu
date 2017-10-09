@@ -5,7 +5,7 @@
     ) loading...
 
     v-list(
-      v-else
+      v-else-if="repos.length > 0"
     )
       template(
         v-for="repo in repos"
@@ -56,45 +56,12 @@
   export default {
 
     created () {
+      this.fetchData();
+
+      /* Watch for changes to the repo store */
       this.$store.subscribe((mutation) => {
         if (mutation.type === 'updateRepos') {
-          const repositories = this.$store.getters.repos
-            .reduce((result, { repos }) => {
-              repos.forEach((repo) => {
-                const status = repo.lastBuildStatus.toLowerCase();
-
-                result.push({
-                  img: this.statusToImgName(status),
-                  status,
-                  title: repo.name,
-                  url: repo.webUrl,
-                });
-              });
-
-              return result;
-            }, [])
-            .sort((a, b) => {
-              if (a.title < b.title) {
-                return -1;
-              } else if (a.title > b.title) {
-                return 1;
-              }
-
-              return 0;
-            });
-
-          /* Update the tray */
-          remote.app.emit('update-repos', repositories);
-
-          this.loading = false;
-          this.repos = repositories.reduce((result, repo) => {
-            result.push(repo);
-            result.push({
-              divider: true,
-            });
-
-            return result;
-          }, []);
+          this.fetchData();
         }
       });
     },
@@ -107,6 +74,46 @@
     },
 
     methods: {
+
+      fetchData () {
+        const repositories = this.$store.getters.repos
+          .reduce((result, { repos }) => {
+            repos.forEach((repo) => {
+              const status = repo.lastBuildStatus.toLowerCase();
+
+              result.push({
+                img: this.statusToImgName(status),
+                status,
+                title: repo.name,
+                url: repo.webUrl,
+              });
+            });
+
+            return result;
+          }, [])
+          .sort((a, b) => {
+            if (a.title < b.title) {
+              return -1;
+            } else if (a.title > b.title) {
+              return 1;
+            }
+
+            return 0;
+          });
+
+        /* Update the tray */
+        remote.app.emit('update-repos', repositories);
+
+        this.loading = false;
+        this.repos = repositories.reduce((result, repo) => {
+          result.push(repo);
+          result.push({
+            divider: true,
+          });
+
+          return result;
+        }, []);
+      },
 
       /**
        * Open URL
@@ -139,6 +146,10 @@
         return `${path}${img}.png`;
       },
 
+    },
+
+    watch: {
+      $route: 'fetchData',
     },
 
   };
