@@ -27,7 +27,10 @@
       absolute
       fixed
     )
-      div Last checked: @todo
+      div Last checked:&nbsp;
+        span( v-if="lastChecked") {{ lastChecked.format('HH:mm:ss') }}
+        span( v-else ) -
+
       v-spacer
       div &copy; {{ copyrightDate() }}
 
@@ -41,13 +44,23 @@
   /* Node modules */
 
   /* Third-party modules */
+  import moment from 'moment';
 
   /* Files */
 
   export default {
 
+    created () {
+      this.$store.subscribe((mutation) => {
+        if (mutation.type === 'updateRepos') {
+          this.lastChecked = moment();
+        }
+      });
+    },
+
     data () {
       return {
+        lastChecked: null,
         pages: [{
           href: 'projects',
           icon: 'folder',

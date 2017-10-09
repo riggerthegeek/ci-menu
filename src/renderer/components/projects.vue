@@ -139,7 +139,7 @@
       },
 
       statusToImg (status) {
-        const path = 'assets/img/';
+        const path = 'assets/img/statuses/';
 
         const img = this.statusToImgName(status);
 

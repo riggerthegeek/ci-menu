@@ -6,6 +6,10 @@
   display: none;
 }
 
+* {
+  user-select: none;
+}
+
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
