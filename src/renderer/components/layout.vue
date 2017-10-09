@@ -22,6 +22,15 @@
             xs12
           )
             router-view
+
+    v-footer.pa-3(
+      absolute
+      fixed
+    )
+      div Last checked: @todo
+      v-spacer
+      div &copy; {{ copyrightDate() }}
+
 </template>
 
 <script>
@@ -36,6 +45,7 @@
   /* Files */
 
   export default {
+
     data () {
       return {
         pages: [{
@@ -53,5 +63,21 @@
         }],
       };
     },
+
+    methods: {
+
+      copyrightDate () {
+        const startYear = 2017;
+        const currentYear = new Date().getUTCFullYear();
+
+        if (currentYear > startYear) {
+          return `${startYear} - ${currentYear}`;
+        }
+
+        return currentYear;
+      },
+
+    },
+
   };
 </script>
