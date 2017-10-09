@@ -6,9 +6,9 @@
 import path from 'path';
 
 /* Third-party modules */
+import axios from 'axios';
 import fs from 'fs-extra';
 import { remote } from 'electron';
-import request from 'request-promise-native';
 import Vue from 'vue/dist/vue.min';
 import xmlParser from 'xml2js';
 
@@ -81,13 +81,13 @@ export default {
       return dispatch('getSettings')
         .then((settings) => {
           /* Build task list */
-          const tasks = settings.map(item => request(item.url)
+          const tasks = settings.map(item => axios.get(item.url)
             .catch((err) => {
               /* There was a problem connecting to this endpoint */
               console.log(err);
               return null;
             })
-            .then(xml => new Promise((resolve) => {
+            .then(({ data }) => new Promise((resolve) => {
               /* Lower case the tag for easy traversing */
               const opts = {
                 tagNameProcessors: [
@@ -98,7 +98,7 @@ export default {
               /* Do we get everything we can? */
               const getAll = item.all !== false;
 
-              xmlParser.parseString(xml, opts, (err, parsedXml) => {
+              xmlParser.parseString(data, opts, (err, parsedXml) => {
                 if (err) {
                   /* Cannot parse the XML - return empty array */
                   resolve([]);
