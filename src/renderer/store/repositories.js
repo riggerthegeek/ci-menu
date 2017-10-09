@@ -76,6 +76,8 @@ export default {
     },
 
     loadLatestStatus ({ commit, dispatch }) {
+      logger.trigger('trace', 'repo store loadLatestStatus');
+
       return dispatch('getSettings')
         .then((settings) => {
           /* Build task list */
@@ -174,6 +176,10 @@ export default {
   mutations: {
 
     updateRepos (state, newState) {
+      logger.trigger('info', 'Updating repo state', {
+        state: newState,
+      });
+
       Vue.set(state, 'repos', newState);
     },
 
