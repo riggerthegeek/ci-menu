@@ -34,20 +34,19 @@ export default {
   actions: {
 
     getSettings () {
-      return Promise.resolve()
-        .then(() => new Promise((resolve, reject) => {
-          /* Return the data */
-          const filePath = path.join(config.dataPath, config.dataFile);
+      return new Promise((resolve, reject) => {
+        /* Return the data */
+        const filePath = path.join(config.dataPath, config.dataFile);
 
-          fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-              reject(err);
-              return;
-            }
+        fs.readFile(filePath, 'utf8', (err, data) => {
+          if (err) {
+            reject(err);
+            return;
+          }
 
-            resolve(data);
-          });
-        }))
+          resolve(data);
+        });
+      })
         /* Convert to JSON */
         .then(str => JSON.parse(str))
         .catch((err) => {
