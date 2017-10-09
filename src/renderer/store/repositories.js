@@ -24,6 +24,8 @@ import xmlParser from 'xml2js';
  */
 const toLowerCase = str => str.toLowerCase();
 
+const logger = remote.app.logger;
+
 const config = {
   dataPath: path.join(remote.app.getPath('userData'), 'repos'),
   dataFile: 'repos.json',
@@ -34,9 +36,13 @@ export default {
   actions: {
 
     getSettings () {
+      const filePath = path.join(config.dataPath, config.dataFile);
+
       return new Promise((resolve, reject) => {
         /* Return the data */
-        const filePath = path.join(config.dataPath, config.dataFile);
+        logger.trigger('trace', 'repo store getSettings', {
+          filePath,
+        });
 
         fs.readFile(filePath, 'utf8', (err, data) => {
           if (err) {
@@ -52,8 +58,17 @@ export default {
         .catch((err) => {
           if (err.code === 'ENOENT') {
             /* File not present - ensure path exists */
+            logger.trigger('trace', 'repo store getSettings file doesn\'t exist', {
+              filePath,
+            });
+
             return fs.mkdirp(config.dataPath);
           }
+
+          logger.trigger('error', 'repo store getSettings error', {
+            err,
+            filePath,
+          });
 
           /* Unknown error - just reject with error */
           return Promise.reject(err);
