@@ -3,10 +3,10 @@
  */
 
 /* Node modules */
-import fs from 'fs-extra';
 import path from 'path';
 
 /* Third-party modules */
+import fs from 'fs-extra';
 import { remote } from 'electron';
 import request from 'request-promise-native';
 import Vue from 'vue/dist/vue.min';
