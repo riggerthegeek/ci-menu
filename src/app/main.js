@@ -12,6 +12,7 @@ import { app, BrowserWindow, shell, screen } from 'electron';
 import { enableLiveReload } from 'electron-compile';
 
 /* Files */
+import Logger from './logger';
 import pkg from '../../package.json';
 import tray from './tray';
 
@@ -37,7 +38,7 @@ function createWindow () {
     xPos = maxWidth - width;
   }
 
-  mainWindow = new BrowserWindow({
+  const opts = {
     frame: false,
     fullscreenable: false,
     height,
@@ -50,7 +51,13 @@ function createWindow () {
     width,
     x: xPos,
     y: 0,
+  };
+
+  app.logger.trigger('trace', 'Creating browser window with opts', {
+    opts,
   });
+
+  mainWindow = new BrowserWindow(opts);
 
   const { webContents } = mainWindow;
 
@@ -91,8 +98,12 @@ app
     }
 
     if (mainWindow.isVisible()) {
+      app.logger.trigger('trace', 'Hiding main window');
+
       mainWindow.hide();
     } else {
+      app.logger.trigger('trace', 'Showing main window');
+
       mainWindow.show();
     }
   })
@@ -100,5 +111,8 @@ app
     /* Don't quit app if last window closed */
   })
   .on('ready', createWindow);
+
+/* Set the logger */
+app.logger = new Logger(`${app.getPath('userData')}/logs/cimenu.log`);
 
 module.exports = app;
