@@ -133,7 +133,10 @@ export default {
                     const includeProject = () => item.repos
                       .find(repo => repo.name === project.name);
 
-                    if (getAll || includeProject()) {
+                    const ignoreProject = () => Array
+                      .isArray(item.ignore) && item.ignore.includes(project.name);
+
+                    if ((getAll || includeProject()) && !ignoreProject()) {
                       result.push(project);
                     }
 
