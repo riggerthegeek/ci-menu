@@ -47,3 +47,10 @@ Clients that consume this XML should not rely on any optional attribute being pr
         webUrl="http://mrtickle/ccnet/"/>
 </Projects>
 ```
+
+# FAQs
+
+#### Why is there no tray icon present?
+
+If you are on Linux, you need to install `libappindicator1`. See [Electron docs](https://electron.atom.io/docs/api/tray/)
+for more platform limitations.
