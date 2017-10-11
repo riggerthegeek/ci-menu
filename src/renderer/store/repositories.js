@@ -84,8 +84,12 @@ export default {
           const tasks = settings.map(item => axios.get(item.url)
             .catch((err) => {
               /* There was a problem connecting to this endpoint */
-              console.log(err);
-              return null;
+              logger.trigger('warn', 'Error getting settings', {
+                err,
+                url: item.url,
+              });
+
+              return {};
             })
             .then(({ data }) => new Promise((resolve) => {
               /* Lower case the tag for easy traversing */
@@ -179,9 +183,7 @@ export default {
   mutations: {
 
     updateRepos (state, newState) {
-      logger.trigger('info', 'Updating repo state', {
-        state: newState,
-      });
+      logger.trigger('trace', 'Updating repo state');
 
       Vue.set(state, 'repos', newState);
     },
