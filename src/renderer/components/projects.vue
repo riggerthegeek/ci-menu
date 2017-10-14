@@ -113,8 +113,6 @@
 
           return result;
         }, []);
-
-        console.log(this.repos);
       },
 
       /**
