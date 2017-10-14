@@ -135,7 +135,8 @@
           unknown: 'unknown',
         };
 
-        return statuses[status];
+        /* Default to unknown */
+        return statuses[status] || statuses.unknown;
       },
 
       statusToImg (status) {
