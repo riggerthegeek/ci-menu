@@ -1,39 +1,35 @@
 <template lang="jade">
-  v-app(dark)
+  v-app#app-layout(dark)
+
     v-tabs(dark fixed icons centered)
+      v-toolbar(app)
+        v-toolbar-title.white--text CI Menu
+        v-spacer
+        v-btn(icon)
+          v-icon refresh
+
       v-tabs-bar.grey.darken-4
         v-tabs-slider.yellow
         v-tabs-item(
-          v-for="item in pages",
-          :to="{ name: item.href }",
+          v-for="page in pages",
+          :to="{ name: page.href }"
           router
         )
-          v-icon {{ item.icon }}
-          | {{ item.name }}
+          v-icon {{ page.icon }}
+          | {{ page.name }}
 
-      v-container(
-        grid-list-md
-      )
-        v-layout(
-          row
-          wrap
-        )
-          v-flex(
-            xs12
-          )
-            router-view
+    main
+      v-content
+        router-view
+          v-container(fluid)
 
-    v-footer.pa-3(
-      absolute
-      fixed
-    )
+    v-footer(app)
       div Last checked:&nbsp;
         span( v-if="lastChecked") {{ lastChecked.format('HH:mm:ss') }}
         span( v-else ) -
 
       v-spacer
       div &copy; {{ copyrightDate() }}
-
 </template>
 
 <script>
@@ -94,3 +90,16 @@
 
   };
 </script>
+
+<style lang="scss">
+
+  #app-layout {
+    main {
+      height: 200px;
+      overflow: {
+        y: scroll;
+      }
+    }
+  }
+
+</style>
