@@ -5,7 +5,10 @@
       v-toolbar(app)
         v-toolbar-title.white--text CI Menu
         v-spacer
-        v-btn(icon)
+        v-btn(
+          icon
+          @click="updateRepos(true)"
+        )
           v-icon refresh
 
       v-tabs-bar.grey.darken-4
@@ -29,7 +32,7 @@
         span( v-else ) -
 
       v-spacer
-      div &copy; {{ copyrightDate() }}
+      div &copy; 2017
 </template>
 
 <script>
@@ -41,21 +44,21 @@
 
   /* Third-party modules */
   import moment from 'moment';
+  import { remote } from 'electron';
 
   /* Files */
+
+  const logger = remote.app.logger.trigger;
 
   export default {
 
     created () {
-      this.$store.subscribe((mutation) => {
-        if (mutation.type === 'updateRepos') {
-          this.lastChecked = moment();
-        }
-      });
+      this.updateRepos(true);
     },
 
     data () {
       return {
+        interval: null,
         lastChecked: null,
         pages: [{
           href: 'projects',
@@ -70,20 +73,88 @@
           icon: 'settings',
           name: 'Settings',
         }],
+        updatingRepos: false,
       };
     },
 
     methods: {
 
-      copyrightDate () {
-        const startYear = 2017;
-        const currentYear = new Date().getUTCFullYear();
+      /**
+       * Reset Timeout
+       *
+       * Clears the existing timeout and replaces it with
+       * a new one.
+       */
+      resetTimeout () {
+        /* Restart the timeout */
+        logger('trace', 'Repo update interval cancelled', {
+          intervalId: this.interval,
+        });
 
-        if (currentYear > startYear) {
-          return `${startYear} - ${currentYear}`;
+        clearInterval(this.interval);
+
+        let count = 0;
+        this.interval = setInterval(() => {
+          logger('trace', 'Repo update triggered automatically', {
+            count,
+          });
+
+          count += 1;
+
+          this.updateRepos(false);
+        }, this.$store.getters.updateInterval);
+
+        logger('trace', 'Repo update interval created', {
+          intervalId: this.interval,
+        });
+      },
+
+      /**
+       * Update Repo
+       *
+       * Updates the repos. It will not run an update
+       * if there's already one running. There is also
+       * the option of resetting the timeout, should
+       * we wish to restart the interval from now.
+       *
+       * @param {boolean} resetTimeout
+       * @return {Promise}
+       */
+      updateRepos (resetTimeout = false) {
+        if (resetTimeout) {
+          this.resetTimeout();
         }
 
-        return currentYear;
+        if (this.updatingRepos) {
+          /* Currently updating - don't duplicate */
+          logger('trace', 'Repo update - currently in progress');
+
+          return Promise.resolve();
+        }
+
+        this.updatingRepos = true;
+
+        logger('trace', 'Repo update - starting');
+
+        return this.$store.dispatch('loadLatestStatus')
+          .then((result) => {
+            logger('trace', 'Repo update - finished');
+
+            this.lastChecked = moment();
+            this.updatingRepos = false;
+
+            return result;
+          })
+          .catch((err) => {
+            logger('trace', 'Repo update - error', {
+              err,
+            });
+
+            this.lastChecked = moment();
+            this.updatingRepos = false;
+
+            return Promise.reject(err);
+          });
       },
 
     },
