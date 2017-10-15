@@ -78,8 +78,11 @@ const setContextMenu = (tray, repos = []) => {
 
   const contextMenu = Menu.buildFromTemplate(menuContents);
 
+  const failCount = fails.length > 10 ? '10+' : String(fails.length);
+
   tray.setContextMenu(contextMenu);
   tray.setImage(trayImg);
+  tray.setTitle(failCount);
 };
 
 export default () => {
@@ -93,6 +96,5 @@ export default () => {
     setContextMenu(tray, repos);
   });
 
-  tray.setTitle('This is a title');
-  tray.setToolTip('This is a tooltip');
+  tray.setToolTip('CI Menu');
 };
