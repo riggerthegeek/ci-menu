@@ -10,12 +10,14 @@ import Vuex from 'vuex/dist/vuex';
 
 /* Files */
 import repositories from './repositories';
+import settings from './settings';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
     repositories,
+    settings,
   },
   strict: false,
 });
