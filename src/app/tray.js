@@ -20,7 +20,7 @@ const icons = iconTypes.reduce((result, type) => {
   result[type] = nativeImage
     .createFromPath(`${__dirname}/../assets/img/statuses/${type}.png`)
     .resize({
-      width: 24,
+      width: 16,
     });
 
   return result;
