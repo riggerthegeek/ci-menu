@@ -5,11 +5,26 @@
       v-toolbar(app)
         v-toolbar-title.white--text CI Menu
         v-spacer
-        v-btn(
-          icon
-          @click="updateRepos(true)"
-        )
-          v-icon refresh
+
+        v-tooltip(bottom)
+          v-btn(
+            icon,
+            @click="newRepo",
+            slot="activator"
+          )
+            v-icon add
+
+          span Add new repo
+
+        v-tooltip(bottom)
+          v-btn(
+            icon,
+            @click="updateRepos(true)",
+            slot="activator"
+          )
+            v-icon refresh
+
+          span Update repositories
 
       v-tabs-bar.grey.darken-4
         v-tabs-slider.yellow
@@ -19,7 +34,7 @@
           router
         )
           v-icon {{ page.icon }}
-          | {{ page.name }}
+          span {{ page.name }}
 
     main
       v-content
@@ -78,6 +93,19 @@
     },
 
     methods: {
+
+      /**
+       * New Repo
+       *
+       * Sends page to the new repo page
+       *
+       * @return {Promise}
+       */
+      newRepo () {
+        return this.$router.push({
+          name: 'repo',
+        });
+      },
 
       /**
        * Reset Timeout
