@@ -30,9 +30,7 @@ const setContextMenu = (tray, repos = []) => {
   const menuContents = repos.map(repo => ({
     icon: !icons[repo.img] ? icons.unknown : icons[repo.img],
     label: repo.title,
-    click () {
-      return shell.openExternal(repo.url);
-    },
+    click: () => shell.openExternal(repo.url),
   }));
 
   const commonMenu = [{
