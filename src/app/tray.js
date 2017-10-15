@@ -27,11 +27,24 @@ const icons = iconTypes.reduce((result, type) => {
 }, {});
 
 const setContextMenu = (tray, repos = []) => {
-  const menuContents = repos.map(repo => ({
-    icon: !icons[repo.img] ? icons.unknown : icons[repo.img],
-    label: repo.title,
-    click: () => shell.openExternal(repo.url),
-  }));
+  const passes = [];
+  const fails = [];
+
+  const menuContents = repos.map((repo) => {
+    if (repo.status === 'success') {
+      /* Passed successfully */
+      passes.push(repo);
+    } else {
+      /* Didn't pass - treat as failed */
+      fails.push(repo);
+    }
+
+    return {
+      icon: !icons[repo.img] ? icons.unknown : icons[repo.img],
+      label: repo.title,
+      click: () => shell.openExternal(repo.url),
+    };
+  });
 
   const commonMenu = [{
     type: 'separator',
@@ -51,12 +64,6 @@ const setContextMenu = (tray, repos = []) => {
 
   /* Get the tray icon - default to unknown */
   let trayImg = icons.unknown;
-
-  /* Are they all passing? */
-  const passes = repos.filter(({ status }) => status === 'success');
-
-  /* Are they all failing? */
-  const fails = repos.filter(({ status }) => status === 'failure');
 
   if (passes.length > 0 && fails.length === 0) {
     /* All passed - no failures */
