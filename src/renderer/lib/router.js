@@ -12,6 +12,7 @@ import VueRouter from 'vue-router';
 import alerts from '../components/alerts.vue';
 import layout from '../components/layout.vue';
 import projects from '../components/projects.vue';
+import repo from '../components/repo.vue';
 import settings from '../components/settings.vue';
 
 Vue.use(VueRouter);
@@ -31,6 +32,10 @@ const routes = [{
     path: '/settings',
     name: 'settings',
     component: settings,
+  }, {
+    path: '/repo',
+    name: 'repo',
+    component: repo,
   }],
 }, {
   path: '*',
