@@ -23,8 +23,7 @@
           avatar,
           v-else,
           :key="repo.title",
-          @click="openUrl(repo.url)"
-          download
+          :href="repo.url"
         )
 
           v-list-tile-avatar
@@ -39,6 +38,15 @@
             v-list-tile-sub-title(
               v-html="repo.subtitle"
             )
+
+          v-list-tile-action(
+            @click.prevent="edit(repo)"
+          )
+            v-btn(
+              icon
+              ripple
+            )
+              v-icon edit
 </template>
 
 <script>
@@ -74,6 +82,10 @@
     },
 
     methods: {
+
+      edit (repo) {
+        console.log(`edit ${repo.title}`);
+      },
 
       fetchData () {
         const repositories = this.$store.getters.repos
