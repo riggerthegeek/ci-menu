@@ -20,7 +20,7 @@ const icons = iconTypes.reduce((result, type) => {
   result[type] = nativeImage
     .createFromPath(`${__dirname}/../assets/img/statuses/${type}.png`)
     .resize({
-      width: 24,
+      width: 16,
     });
 
   return result;
@@ -30,9 +30,7 @@ const setContextMenu = (tray, repos = []) => {
   const menuContents = repos.map(repo => ({
     icon: !icons[repo.img] ? icons.unknown : icons[repo.img],
     label: repo.title,
-    click () {
-      return shell.openExternal(repo.url);
-    },
+    click: () => shell.openExternal(repo.url),
   }));
 
   const commonMenu = [{
@@ -78,8 +76,11 @@ const setContextMenu = (tray, repos = []) => {
 
   const contextMenu = Menu.buildFromTemplate(menuContents);
 
+  const failCount = fails.length > 10 ? '10+' : String(fails.length);
+
   tray.setContextMenu(contextMenu);
   tray.setImage(trayImg);
+  tray.setTitle(failCount);
 };
 
 export default () => {
@@ -93,6 +94,5 @@ export default () => {
     setContextMenu(tray, repos);
   });
 
-  tray.setTitle('This is a title');
-  tray.setToolTip('This is a tooltip');
+  tray.setToolTip('CI Menu');
 };
