@@ -80,6 +80,11 @@ export default {
 
       return dispatch('getSettings')
         .then((settings) => {
+          /* Ensure we have an array */
+          if (!Array.isArray(settings)) {
+            settings = [];
+          }
+
           /* Build task list */
           const tasks = settings.map(item => axios.get(item.url)
             .catch((err) => {
