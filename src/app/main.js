@@ -10,11 +10,27 @@
 /* Third-party modules */
 import { app, BrowserWindow, shell } from 'electron';
 import { enableLiveReload } from 'electron-compile';
+import yargs from 'yargs';
 
 /* Files */
 import Logger from './logger';
 import pkg from '../../package.json';
 import tray from './tray';
+
+/* Sort out command line args */
+// eslint-disable-next-line no-unused-expressions
+yargs
+  .usage('$0 <cmd> [args]')
+  .options({
+    hide: {
+      alias: 'H',
+      default: false,
+      describe: 'Hides the main windows on start',
+    },
+  })
+  .version(pkg.version)
+  .help()
+  .argv;
 
 /*
  Keep a global reference of the window, so it's
@@ -26,6 +42,8 @@ function createWindow () {
   const height = 600;
   const width = 400;
 
+  const show = yargs.argv.hide === false;
+
   const opts = {
     frame: false,
     fullscreenable: false,
@@ -34,7 +52,7 @@ function createWindow () {
     maximizable: false,
     movable: true,
     resizable: false,
-    show: false,
+    show,
     title: pkg.productName,
     width,
   };

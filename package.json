@@ -23,7 +23,7 @@
     "package": "electron-packager-compile ./tmp ci-menu --icon ./tmp/src/assets/img/logo.icns --all --out ./build --overwrite true",
     "package:local": "npm run compile && electron-packager-compile ./tmp ci-menu --icon ./tmp/src/assets/img/logo.icns --out ./build --overwrite true",
     "postversion": "git push --tags && git push",
-    "serve": "DEBUG=-electron-compile:* ENABLE_LIVE_RELOAD=true SHOW_DEV_TOOLS=true electron . | bunyan",
+    "serve": "DEBUG=-electron-compile:* ENABLE_LIVE_RELOAD=true SHOW_DEV_TOOLS=true electron . --help | bunyan",
     "test": "npm run -s test:lint && npm run -s test:unit",
     "test:lint": "npm run -s test:lint:src && npm run -s test:lint:test",
     "test:lint:src": "eslint --ext .js,.vue src",
@@ -54,7 +54,8 @@
     "vueify": "^9.4.1",
     "vuetify": "^0.16.5",
     "vuex": "^3.0.0",
-    "xml2js": "^0.4.19"
+    "xml2js": "^0.4.19",
+    "yargs": "^9.0.1"
   },
   "devDependencies": {
     "chai": "^4.1.0",
