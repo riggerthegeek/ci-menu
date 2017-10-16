@@ -2,7 +2,7 @@
   v-app#app-layout(dark)
 
     v-tabs(dark fixed icons centered)
-      v-toolbar(app dense)
+      v-toolbar.header(app dense)
 
         v-toolbar-title.white--text CI Menu
 
@@ -92,7 +92,7 @@
           icon: 'remove',
           tooltip: 'Minimise window',
         }, {
-          action: () => remote.getCurrentWindow().close(),
+          action: () => remote.getCurrentWindow().hide(),
           color: 'red black--text',
           icon: 'close',
           tooltip: 'Close window',
@@ -226,6 +226,15 @@
 </script>
 
 <style lang="scss">
+
+  .header {
+    -webkit-app-region: drag;
+    -webkit-user-select: none;
+
+    .tooltip {
+      -webkit-app-region: no-drag;
+    }
+  }
 
   #app-layout {
     main {
