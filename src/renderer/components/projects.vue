@@ -1,52 +1,60 @@
 <template lang="jade">
   div
-    div(
+    .text-xs-center.pa-5(
       v-if='loading'
-    ) loading...
-
-    v-list(
-      v-else-if="repos.length > 0"
     )
-      template(
-        v-for="repo in repos"
+      v-progress-circular(
+        indeterminate
+        color="yellow"
+        size="100"
       )
-        v-subheader(
-          v-if="repo.header"
-          v-text="repo.header"
+
+    div(v-else)
+
+      v-list(
+        v-if="repos.length > 0"
+      )
+        template(
+          v-for="repo in repos"
         )
-        v-divider(
-          v-else-if="repo.divider",
-          :inset="repo.inset"
-        )
-
-        v-list-tile(
-          avatar,
-          v-else,
-          :key="repo.title",
-          :href="repo.url"
-        )
-
-          v-list-tile-avatar
-            img(
-              :src="statusToImg(repo.status)"
-            )
-
-          v-list-tile-content
-            v-list-tile-title(
-              v-html="repo.title"
-            )
-            v-list-tile-sub-title(
-              v-html="repo.subtitle"
-            )
-
-          v-list-tile-action(
-            @click.prevent="edit(repo)"
+          v-subheader(
+            v-if="repo.header"
+            v-text="repo.header"
           )
-            v-btn(
-              icon
-              ripple
+          v-divider(
+            v-else-if="repo.divider",
+            :inset="repo.inset"
+          )
+
+          v-list-tile(
+            avatar,
+            v-else,
+            :key="repo.title",
+            :href="repo.url"
+          )
+
+            v-list-tile-avatar
+              img(
+                :src="statusToImg(repo.status)"
+              )
+
+            v-list-tile-content
+              v-list-tile-title(
+                v-html="repo.title"
+              )
+              v-list-tile-sub-title(
+                v-html="repo.subtitle"
+              )
+
+            v-list-tile-action(
+              @click.prevent="edit(repo)"
             )
-              v-icon edit
+              v-btn(
+                icon
+                ripple
+              )
+                v-icon edit
+
 </template>
 
 <script>
@@ -64,8 +72,6 @@
   export default {
 
     created () {
-      this.fetchData();
-
       /* Watch for changes to the repo store */
       this.$store.subscribe((mutation) => {
         if (mutation.type === 'updateRepos') {
