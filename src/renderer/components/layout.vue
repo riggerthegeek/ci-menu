@@ -2,29 +2,23 @@
   v-app#app-layout(dark)
 
     v-tabs(dark fixed icons centered)
-      v-toolbar(app)
+      v-toolbar(app dense)
+
         v-toolbar-title.white--text CI Menu
+
         v-spacer
 
-        v-tooltip(bottom)
-          v-btn(
-            icon,
-            @click="newRepo",
-            slot="activator"
-          )
-            v-icon add
+        v-btn.btn--v-small(
+          color="orange black--text"
+          icon
+        )
+          v-icon remove
 
-          span Add new repo
-
-        v-tooltip(bottom)
-          v-btn(
-            icon,
-            @click="updateRepos(true)",
-            slot="activator"
-          )
-            v-icon refresh
-
-          span Update repositories
+        v-btn.btn--v-small(
+          color="red black--text"
+          icon
+        )
+          v-icon close
 
       v-tabs-bar.grey.darken-4
         v-tabs-slider.yellow
@@ -45,6 +39,30 @@
       div Last checked:&nbsp;
         span( v-if="lastChecked") {{ lastChecked.format('HH:mm:ss') }}
         span( v-else ) -
+
+        v-tooltip(
+          top
+        )
+          v-btn(
+            icon,
+            @click="newRepo",
+            slot="activator"
+          )
+            v-icon add
+
+          span Add new repo
+
+        v-tooltip(
+          top
+        )
+          v-btn(
+            icon,
+            @click="updateRepos(true)",
+            slot="activator"
+          )
+            v-icon refresh
+
+          span Update repositories
 
       v-spacer
       div &copy; 2017
