@@ -8,7 +8,7 @@
 /* Node modules */
 
 /* Third-party modules */
-import { app, BrowserWindow, shell, screen } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import { enableLiveReload } from 'electron-compile';
 
 /* Files */
@@ -23,20 +23,8 @@ import tray from './tray';
 let mainWindow;
 
 function createWindow () {
-  const mainDisplay = screen
-    .getAllDisplays()
-    .find(({ id }) => id === 0);
-
-  let maxWidth = null;
-  let xPos = 0;
-
   const height = 600;
   const width = 400;
-
-  if (mainDisplay) {
-    maxWidth = mainDisplay.workAreaSize.width;
-    xPos = maxWidth - width;
-  }
 
   const opts = {
     frame: false,
@@ -44,13 +32,11 @@ function createWindow () {
     height,
     icon: `${__dirname}/../assets/img/logo.png`,
     maximizable: false,
-    movable: false,
+    movable: true,
     resizable: false,
     show: false,
     title: pkg.productName,
     width,
-    x: xPos,
-    y: 0,
   };
 
   app.logger.trigger('trace', 'Creating browser window with opts', {
