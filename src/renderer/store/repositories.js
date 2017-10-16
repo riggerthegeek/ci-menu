@@ -85,86 +85,110 @@ export default {
             settings = [];
           }
 
+          const axiosConfig = {
+            timeout: 10000,
+          };
+
           /* Build task list */
-          const tasks = settings.map(item => axios.get(item.url)
-            .catch((err) => {
-              /* There was a problem connecting to this endpoint */
-              logger.trigger('warn', 'Error getting settings', {
-                err,
-                url: item.url,
-              });
+          const tasks = settings.map((item) => {
+            if (item.auth) {
+              axiosConfig.auth = item.auth;
+            }
 
-              return {};
-            })
-            .then(({ data }) => new Promise((resolve) => {
-              /* Lower case the tag for easy traversing */
-              const opts = {
-                tagNameProcessors: [
-                  toLowerCase,
-                ],
-              };
+            return axios.get(item.url, axiosConfig)
+              .catch((err) => {
+                /* There was a problem connecting to this endpoint */
+                logger.trigger('warn', 'Error getting settings', {
+                  err,
+                  url: item.url,
+                });
 
-              /* Do we get everything we can? */
-              const getAll = item.all !== false;
+                return {};
+              })
+              .then(({ data }) => new Promise((resolve) => {
+                /* Lower case the tag for easy traversing */
+                const opts = {
+                  tagNameProcessors: [
+                    toLowerCase,
+                  ],
+                };
 
-              xmlParser.parseString(data, opts, (err, parsedXml) => {
-                if (err) {
-                  /* Cannot parse the XML - return empty array */
-                  resolve([]);
-                  return;
-                }
+                /* Do we get everything we can? */
+                const getAll = item.all !== false;
 
-                try {
-                  const out = parsedXml.projects.project.reduce((result, { $ }) => {
-                    /* These are the required parts */
-                    const project = {
-                      name: $.name,
-                      activity: $.activity,
-                      lastBuildStatus: $.lastBuildStatus,
-                      lastBuildLabel: $.lastBuildLabel || null,
-                      lastBuildTime: $.lastBuildTime,
-                      nextBuildTime: $.nextBuildTime || null,
-                      webUrl: $.webUrl,
-                    };
-
-                    /* Convert the times to Date objects */
-                    const dates = [
-                      'lastBuildTime',
-                      'nextBuildTime',
-                    ];
-
-                    dates.forEach((key) => {
-                      if (project[key] !== null) {
-                        project[key] = new Date(project[key]);
-                      }
+                xmlParser.parseString(data, opts, (err, parsedXml) => {
+                  if (err) {
+                    /* Cannot parse the XML - return empty array */
+                    logger.trigger('warn', 'Error parsing XML', {
+                      err,
+                      input: data,
                     });
 
-                    const includeProject = () => item.repos
-                      .find(repo => repo.name === project.name);
+                    resolve([]);
+                    return;
+                  }
 
-                    const ignoreProject = () => Array
-                      .isArray(item.ignore) && item.ignore.includes(project.name);
+                  try {
+                    const out = parsedXml.projects.project.reduce((result, { $ }) => {
+                      /* These are the required parts */
+                      const project = {
+                        name: $.name,
+                        activity: $.activity,
+                        lastBuildStatus: $.lastBuildStatus,
+                        lastBuildLabel: $.lastBuildLabel || null,
+                        lastBuildTime: $.lastBuildTime,
+                        nextBuildTime: $.nextBuildTime || null,
+                        webUrl: $.webUrl,
+                      };
 
-                    if ((getAll || includeProject()) && !ignoreProject()) {
-                      result.push(project);
-                    }
+                      /* Convert the times to Date objects */
+                      const dates = [
+                        'lastBuildTime',
+                        'nextBuildTime',
+                      ];
 
-                    return result;
-                  }, []);
+                      dates.forEach((key) => {
+                        if (project[key] !== null) {
+                          project[key] = new Date(project[key]);
+                        }
+                      });
 
-                  resolve(out);
-                } catch (xmlErr) {
-                  /* Wrong format - return empty array */
-                  resolve([]);
-                }
+                      const includeProject = () => item.repos
+                        .find(repo => repo.name === project.name);
+
+                      const ignoreProject = () => Array
+                        .isArray(item.ignore) && item.ignore.includes(project.name);
+
+                      if ((getAll || includeProject()) && !ignoreProject()) {
+                        result.push(project);
+                      }
+
+                      return result;
+                    }, []);
+
+                    logger.trigger('trace', 'Parsed XML to JSON successfully', {
+                      data: out,
+                    });
+
+                    resolve(out);
+                  } catch (xmlErr) {
+                    /* Wrong format - return empty array */
+                    logger.trigger('warn', 'XML in wrong format', {
+                      err: xmlErr,
+                      data: parsedXml,
+                    });
+
+                    resolve([]);
+                  }
+                });
+              }))
+              .then((repos) => {
+                /* Add in the latest repo version */
+                item.repos = repos;
+
+                return item;
               });
-            }))
-            .then((repos) => {
-              /* Add in the latest repo version */
-              item.repos = repos;
-
-              return item;
-            }));
+          });
 
           return Promise.all(tasks);
         })
