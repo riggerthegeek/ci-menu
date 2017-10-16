@@ -8,17 +8,20 @@
 
         v-spacer
 
-        v-btn.btn--v-small(
-          color="orange black--text"
-          icon
+        v-tooltip(
+          v-for="button in buttons"
+          open-delay="1000"
+          bottom
         )
-          v-icon remove
+          v-btn.btn--v-small(
+            icon,
+            :color="button.color",
+            @click="button.action",
+            slot="activator"
+          )
+            v-icon {{ button.icon }}
 
-        v-btn.btn--v-small(
-          color="red black--text"
-          icon
-        )
-          v-icon close
+          span {{ button.tooltip }}
 
       v-tabs-bar.grey.darken-4
         v-tabs-slider.yellow
@@ -41,7 +44,8 @@
         span( v-else ) -
 
         v-tooltip(
-          v-for="button in buttons"
+          v-for="button in toolbar"
+          open-delay="1000"
           top
         )
           v-btn(
@@ -83,15 +87,15 @@
     data () {
       return {
         buttons: [{
-          action: () => this.updateRepos(true),
-          color: 'green black--text',
-          icon: 'refresh',
-          tooltip: 'Update repositories',
+          action: () => remote.getCurrentWindow().minimize(),
+          color: 'orange black--text',
+          icon: 'remove',
+          tooltip: 'Minimise window',
         }, {
-          action: () => this.newRepo(),
-          color: 'red white--text',
-          icon: 'add',
-          tooltip: 'Add new repo',
+          action: () => remote.getCurrentWindow().close(),
+          color: 'red black--text',
+          icon: 'close',
+          tooltip: 'Close window',
         }],
         interval: null,
         lastChecked: null,
@@ -107,6 +111,17 @@
           href: 'settings',
           icon: 'settings',
           name: 'Settings',
+        }],
+        toolbar: [{
+          action: () => this.updateRepos(true),
+          color: 'green black--text',
+          icon: 'refresh',
+          tooltip: 'Update repositories',
+        }, {
+          action: () => this.newRepo(),
+          color: 'red white--text',
+          icon: 'add',
+          tooltip: 'Add new repo',
         }],
         updatingRepos: false,
       };
