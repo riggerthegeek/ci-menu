@@ -41,28 +41,19 @@
         span( v-else ) -
 
         v-tooltip(
+          v-for="button in buttons"
           top
         )
           v-btn(
             icon,
-            @click="newRepo",
+            :color="button.color",
+            @click="button.action",
+            small,
             slot="activator"
           )
-            v-icon add
+            v-icon {{ button.icon }}
 
-          span Add new repo
-
-        v-tooltip(
-          top
-        )
-          v-btn(
-            icon,
-            @click="updateRepos(true)",
-            slot="activator"
-          )
-            v-icon refresh
-
-          span Update repositories
+          span {{ button.tooltip }}
 
       v-spacer
       div &copy; 2017
@@ -91,6 +82,17 @@
 
     data () {
       return {
+        buttons: [{
+          action: () => this.updateRepos(true),
+          color: 'green black--text',
+          icon: 'refresh',
+          tooltip: 'Update repositories',
+        }, {
+          action: () => this.newRepo(),
+          color: 'red white--text',
+          icon: 'add',
+          tooltip: 'Add new repo',
+        }],
         interval: null,
         lastChecked: null,
         pages: [{
