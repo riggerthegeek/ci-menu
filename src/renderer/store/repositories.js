@@ -27,7 +27,7 @@ const toLowerCase = str => str.toLowerCase();
 const logger = remote.app.logger;
 
 const config = {
-  dataPath: path.join(remote.app.getPath('userData'), 'repos'),
+  dataPath: path.join(remote.app.getPath('userData'), 'ci-menu', 'repos'),
   dataFile: 'repos.json',
 };
 

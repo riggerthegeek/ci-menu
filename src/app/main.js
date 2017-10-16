@@ -124,6 +124,6 @@ app
   .on('ready', createWindow);
 
 /* Set the logger */
-app.logger = new Logger(`${app.getPath('userData')}/logs/cimenu.log`);
+app.logger = new Logger(`${app.getPath('userData')}/logs/ci-menu.log`);
 
 module.exports = app;
