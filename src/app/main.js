@@ -26,6 +26,7 @@ yargs
       alias: 'H',
       default: false,
       describe: 'Hides the main windows on start',
+      type: 'boolean',
     },
   })
   .version(pkg.version)
