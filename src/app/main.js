@@ -71,7 +71,9 @@ function createWindow () {
   }
 
   if (process.env.SHOW_DEV_TOOLS === 'true') {
-    webContents.openDevTools();
+    webContents.openDevTools({
+      detach: true,
+    });
   }
 
   mainWindow.loadURL(`file://${__dirname}/../index.html`);
