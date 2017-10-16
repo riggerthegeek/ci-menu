@@ -53,7 +53,7 @@ function createWindow () {
     maximizable: false,
     movable: true,
     resizable: false,
-    show,
+    show: false,
     title: pkg.productName,
     width,
   };
@@ -84,6 +84,10 @@ function createWindow () {
     })
     .on('ready-to-show', () => {
       tray();
+
+      if (show) {
+        mainWindow.show();
+      }
     });
 
   const handleRedirect = (event, url) => {
