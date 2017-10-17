@@ -240,7 +240,7 @@
     main {
       height: 200px;
       overflow: {
-        y: scroll;
+        y: auto;
       }
     }
   }
