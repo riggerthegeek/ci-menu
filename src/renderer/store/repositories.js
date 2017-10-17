@@ -207,6 +207,8 @@ export default {
 
     repos: state => state.repos,
 
+    updated: state => state.updated,
+
   },
 
   mutations: {
@@ -215,12 +217,15 @@ export default {
       logger.trigger('trace', 'Updating repo state');
 
       Vue.set(state, 'repos', newState);
+
+      Vue.set(state, 'updated', true);
     },
 
   },
 
   state: {
     repos: [],
+    updated: false,
   },
 
 };

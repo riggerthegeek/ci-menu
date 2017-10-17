@@ -78,6 +78,11 @@
           this.fetchData();
         }
       });
+
+      if (this.$store.getters.updated) {
+        /* The store has been updated - get the data onload */
+        this.fetchData();
+      }
     },
 
     data () {
@@ -165,10 +170,6 @@
         return `${path}${img}.png`;
       },
 
-    },
-
-    watch: {
-      $route: 'fetchData',
     },
 
   };
