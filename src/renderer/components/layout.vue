@@ -4,7 +4,7 @@
     v-tabs(dark fixed icons centered)
       v-toolbar.header(app dense)
 
-        v-toolbar-title.white--text CI Menu
+        v-toolbar-title.white--text {{ $t('common:APP_NAME') }}
 
         v-spacer
 
@@ -39,7 +39,7 @@
           v-container(fluid)
 
     v-footer(app)
-      div Last checked:&nbsp;
+      div {{ $t('common:LAST_CHECKED') }}:&nbsp;
         span( v-if="lastChecked") {{ lastChecked.format('HH:mm:ss') }}
         span( v-else ) -
 
@@ -85,43 +85,45 @@
     },
 
     data () {
+      const i18n = this.$i18n.i18next;
+
       return {
         buttons: [{
           action: () => remote.getCurrentWindow().minimize(),
           color: 'orange black--text',
           icon: 'remove',
-          tooltip: 'Minimise window',
+          tooltip: i18n.t('common:MINIMISE_WINDOW'),
         }, {
           action: () => remote.getCurrentWindow().hide(),
           color: 'red black--text',
           icon: 'close',
-          tooltip: 'Close window',
+          tooltip: i18n.t('common:CLOSE_WINDOW'),
         }],
         interval: null,
         lastChecked: null,
         pages: [{
           href: 'projects',
           icon: 'folder',
-          name: 'Projects',
+          name: i18n.t('components:PROJECTS'),
         }, {
           href: 'alerts',
           icon: 'alarm',
-          name: 'Alerts',
+          name: i18n.t('components:ALERTS'),
         }, {
           href: 'settings',
           icon: 'settings',
-          name: 'Settings',
+          name: i18n.t('components:SETTINGS'),
         }],
         toolbar: [{
           action: () => this.updateRepos(true),
           color: 'green black--text',
           icon: 'refresh',
-          tooltip: 'Update repositories',
+          tooltip: i18n.t('common:UPDATE_REPOS'),
         }, {
           action: () => this.newRepo(),
           color: 'red white--text',
           icon: 'add',
-          tooltip: 'Add new repo',
+          tooltip: i18n.t('common:ADD_REPO'),
         }],
         updatingRepos: false,
       };

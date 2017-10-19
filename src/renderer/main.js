@@ -10,6 +10,7 @@ import Vuetify from 'vuetify';
 
 /* Files */
 import App from './components/app.vue';
+import i18n from './lib/i18n';
 import router from './lib/router';
 import store from './store';
 
@@ -19,7 +20,7 @@ new Vue({
   components: {
     App,
   },
-  // i18n,
+  i18n,
   router,
   store,
   template: '<App />',
