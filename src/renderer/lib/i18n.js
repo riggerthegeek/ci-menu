@@ -15,11 +15,10 @@ import Vue from 'vue/dist/vue.min';
 import VueI18Next from '@panter/vue-i18next';
 
 /* Files */
-import i18nLogger from './i18nLogger';
 
 Vue.use(VueI18Next);
 
-const rootPath = path.join(__dirname, '..', 'locales');
+const rootPath = path.join(__dirname, '..', '..', 'locales');
 
 /* Treat the en directory as "master" */
 const ns = glob(`${rootPath}/en/*.json`)
@@ -28,7 +27,7 @@ const ns = glob(`${rootPath}/en/*.json`)
     .replace(/\.json$/, ''));
 
 i18next
-  .use(i18nLogger(remote.app.logger.bunyan))
+  .use(remote.app.i18nLogger)
   .use(i18nextLanguageDetector)
   .use(i18nextFsBackend)
   .init({

@@ -13,6 +13,7 @@ import { enableLiveReload } from 'electron-compile';
 import yargs from 'yargs';
 
 /* Files */
+import i18nLogger from './i18nLogger';
 import Logger from './logger';
 import pkg from '../../package.json';
 import tray from './tray';
@@ -125,5 +126,6 @@ app
 
 /* Set the logger */
 app.logger = new Logger(`${app.getPath('userData')}/logs/ci-menu.log`);
+app.i18nLogger = i18nLogger(app.logger.bunyan);
 
 module.exports = app;
