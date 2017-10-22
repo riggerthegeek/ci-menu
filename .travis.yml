@@ -10,18 +10,26 @@ matrix:
 
 sudo: required
 
+before_install:
+- npm i -g electron-installer-dmg
+
 cache:
   yarn: true
 
 script:
 - npm run -s ci
-#- npm run -s dist
+- npm run -s dist
+- npm run -s executables
 
 deploy:
   provider: releases
   api_key:
     secure: F4rqzPjJRvFArATN5PaCbEawHs1P0saydDnBhIonWff54UUK4iwKVQ9X7WJSzMEHuGGjeIlmxyekRbFFszJV9oB0hH+TozffNXHGhj88tY4BI14j9yoG9hru6g91TlRNtEe4mbhgpUwnYof6ti7AIyww2TKeBV28/dlrCNQJ7Sl/PuWi/4NnYXF7RAmVdZ+Rvrq1kqVoxxP0GKUIPahGKhjyJQtWoVfIm4sGjjWj+TWh2eLzlgo2MWqQvZ5qZbefFjNPPpCcTSRMV45Gu+D+4IA0SQOyKLfkIgbsGpo7W4y5KGeAXQtsepwJTS4AMHRNIkRH4xBxQKOExoVKVnNGqYGVho7t9VqdC9afAsRngVdA3AcJpluhaLzuqSRa990nHcgxjrAkz7/F9P9lWG5cGOQrZoYUIGcdDKEiqEARagtBMxOTs/H4pfUNOLogZVI6POonPgtKfDww5Nx4oIj37fQF+fk5GiHEXit78H9V5BAOotI3M9k6SvEILQCSXLivdZdllAPG4JKfCSmNwntK1RWcSjMxAtZ3EK+lRyoRkQNkMsk4A714ggxz9UlA/tjYQeGRw63IVcTQvlgVXSyfHzKltDseix/bVjk7TrfCG3lNci5ICUOcAE0iSYmYhJzWjuxtG8nk7yOnwCGJIpvcwM9X5gQBTs2URGYlUPH72PQ=
   file:
+  - dist/ci-menu.deb
+  - dist/ci-menu.dmg
+  - dist/ci-menu.exe
+  - dist/ci-menu.rpm
   - dist/armv7l.tar.gz
   - dist/osx.tar.gz
   - dist/linux32.tar.gz
