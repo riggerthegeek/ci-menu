@@ -36,6 +36,30 @@ describe('repositories store test', function () {
 
   describe('getters', function () {
 
+    describe('#repos', function () {
+
+      it('should get the repo state', function () {
+
+        expect(this.repositories.getters.repos({
+          repos: 'repoState',
+        })).to.be.equal('repoState');
+
+      });
+
+    });
+
+    describe('#updated', function () {
+
+      it('should get the updated state', function () {
+
+        expect(this.repositories.getters.updated({
+          updated: 'updatedState',
+        })).to.be.equal('updatedState');
+
+      });
+
+    });
+
   });
 
   describe('state', function () {
