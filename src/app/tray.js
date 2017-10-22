@@ -26,7 +26,7 @@ const icons = iconTypes.reduce((result, type) => {
   return result;
 }, {});
 
-const setContextMenu = (tray, repos = []) => {
+const setContextMenu = (i18next, tray, repos = []) => {
   const passes = [];
   const fails = [];
 
@@ -49,14 +49,16 @@ const setContextMenu = (tray, repos = []) => {
   const commonMenu = [{
     type: 'separator',
   }, {
-    label: 'Open CI Menu',
+    label: i18next.t('tray:OPEN_APP', {
+      name: i18next.t('common:APP_NAME'),
+    }),
     click () {
       tray.emit('click');
     },
   }, {
     type: 'separator',
   }, {
-    label: 'Exit',
+    label: i18next.t('tray:EXIT'),
     click () {
       app.quit();
     },
@@ -90,16 +92,16 @@ const setContextMenu = (tray, repos = []) => {
   tray.setTitle(failCount);
 };
 
-export default () => {
+export default (i18next) => {
   const tray = new Tray(icons.unknown);
 
   tray.on('click', () => app.emit('activate'));
 
-  setContextMenu(tray);
+  setContextMenu(i18next, tray);
 
   app.on('update-repos', (repos) => {
-    setContextMenu(tray, repos);
+    setContextMenu(i18next, tray, repos);
   });
 
-  tray.setToolTip('CI Menu');
+  tray.setToolTip(i18next.t('common:APP_NAME'));
 };

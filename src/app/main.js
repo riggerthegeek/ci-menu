@@ -13,7 +13,7 @@ import { enableLiveReload } from 'electron-compile';
 import yargs from 'yargs';
 
 /* Files */
-import i18nLogger from './i18nLogger';
+import i18n from './i18n';
 import Logger from './logger';
 import pkg from '../../package.json';
 import tray from './tray';
@@ -33,6 +33,10 @@ yargs
   .version(pkg.version)
   .help()
   .argv;
+
+/* Set the logger */
+const logger = new Logger(`${app.getPath('userData')}/logs/ci-menu.log`);
+const i18next = i18n(logger);
 
 /*
  Keep a global reference of the window, so it's
@@ -84,7 +88,7 @@ function createWindow () {
       mainWindow = null;
     })
     .on('ready-to-show', () => {
-      tray();
+      tray(i18next);
 
       if (show) {
         mainWindow.show();
@@ -124,8 +128,7 @@ app
   })
   .on('ready', createWindow);
 
-/* Set the logger */
-app.logger = new Logger(`${app.getPath('userData')}/logs/ci-menu.log`);
-app.i18nLogger = i18nLogger(app.logger.bunyan);
+app.logger = logger;
+app.i18next = i18next;
 
 module.exports = app;
