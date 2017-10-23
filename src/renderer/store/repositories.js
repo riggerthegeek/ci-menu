@@ -6,6 +6,7 @@
 import path from 'path';
 
 /* Third-party modules */
+import { _ } from 'lodash';
 import axios from 'axios';
 import fs from 'fs-extra';
 import { remote } from 'electron';
@@ -29,6 +30,134 @@ const logger = remote.app.logger;
 const config = {
   dataPath: path.join(remote.app.getPath('userData'), 'ci-menu', 'repos'),
   dataFile: 'repos.json',
+};
+
+/**
+ * Parse XML
+ *
+ * Parses the XML into JSON format
+ *
+ * @param {string} input
+ * @param {{ all: boolean, ignore: string[], name: string, repos: [] }} repo
+ * @returns {Promise.<TResult>}
+ */
+const parseXML = (input, repo) => new Promise((resolve) => {
+  /* Lower case the tag for easy traversing */
+  const opts = {
+    tagNameProcessors: [
+      toLowerCase,
+    ],
+  };
+
+  /* Ensure the input is a string */
+  if (_.isString(input) === false) {
+    resolve([]);
+    return;
+  }
+
+  xmlParser.parseString(input, opts, (err, parsedXml) => {
+    if (err) {
+      /* Cannot parse the XML - return empty array */
+      logger.trigger('warn', 'Error parsing XML', {
+        err,
+        input,
+      });
+
+      resolve([]);
+      return;
+    }
+
+    resolve(parsedXml);
+  });
+}).then((parsedXml) => {
+  /* Do we get everything we can? */
+  const getAll = repo.all !== false;
+
+  try {
+    const data = parsedXml.projects.project.reduce((result, { $ }) => {
+      /* These are the required parts */
+      const project = {
+        name: $.name,
+        activity: $.activity,
+        lastBuildStatus: $.lastBuildStatus,
+        lastBuildLabel: $.lastBuildLabel || null,
+        lastBuildTime: $.lastBuildTime,
+        nextBuildTime: $.nextBuildTime || null,
+        webUrl: $.webUrl,
+      };
+
+      /* Convert the times to Date objects */
+      const dates = [
+        'lastBuildTime',
+        'nextBuildTime',
+      ];
+
+      dates.forEach((key) => {
+        if (project[key] !== null) {
+          project[key] = new Date(project[key]);
+        }
+      });
+
+      // const includeProject = () => repo.repos
+      //   .find(item => item.name === project.name);
+      //
+      // const ignoreProject = () => Array
+      //   .isArray(repo.ignore) && repo.ignore.includes(project.name);
+      //
+      // if ((getAll || includeProject()) && !ignoreProject()) {
+      result.push(project);
+      // }
+
+      return result;
+    }, []);
+
+    logger.trigger('trace', 'Parsed XML to JSON successfully', {
+      data,
+    });
+
+    return data;
+  } catch (err) {
+    /* Wrong format - return empty array */
+    logger.trigger('warn', 'XML in wrong format', {
+      err,
+      data: parsedXml,
+    });
+
+    return [];
+  }
+});
+
+/**
+ * Query Repo
+ *
+ * Queries the repository and gets the
+ * status
+ *
+ * @param {{ all: boolean, ignore: string[], name: string, repos: string[], url: string }} repo
+ * @returns {Promise.<TResult>}
+ */
+const queryRepo = (repo) => {
+  const axiosConfig = {
+    timeout: 10000,
+  };
+
+  return axios.get(repo.url, axiosConfig)
+    .catch((err) => {
+      /* There was a problem connecting to this endpoint */
+      logger.trigger('warn', 'Error getting settings', {
+        err,
+        url: repo.url,
+      });
+
+      return {};
+    })
+    .then(({ data }) => parseXML(data, repo))
+    .then((repos) => {
+      /* Add in the latest repo version */
+      repo.repos = repos;
+
+      return repo;
+    });
 };
 
 export default {
@@ -80,124 +209,31 @@ export default {
 
       return dispatch('getSettings')
         .then((settings) => {
-          /* Ensure we have an array */
+          /* Ensure the settings is an array */
           if (!Array.isArray(settings)) {
             settings = [];
           }
 
-          const axiosConfig = {
-            timeout: 10000,
-          };
-
-          /* Build task list */
-          const tasks = settings.map((item) => {
-            if (item.auth) {
-              axiosConfig.auth = item.auth;
-            }
-
-            return axios.get(item.url, axiosConfig)
-              .catch((err) => {
-                /* There was a problem connecting to this endpoint */
-                logger.trigger('warn', 'Error getting settings', {
-                  err,
-                  url: item.url,
-                });
-
-                return {};
-              })
-              .then(({ data }) => new Promise((resolve) => {
-                /* Lower case the tag for easy traversing */
-                const opts = {
-                  tagNameProcessors: [
-                    toLowerCase,
-                  ],
-                };
-
-                /* Do we get everything we can? */
-                const getAll = item.all !== false;
-
-                xmlParser.parseString(data, opts, (err, parsedXml) => {
-                  if (err) {
-                    /* Cannot parse the XML - return empty array */
-                    logger.trigger('warn', 'Error parsing XML', {
-                      err,
-                      input: data,
-                    });
-
-                    resolve([]);
-                    return;
-                  }
-
-                  try {
-                    const out = parsedXml.projects.project.reduce((result, { $ }) => {
-                      /* These are the required parts */
-                      const project = {
-                        name: $.name,
-                        activity: $.activity,
-                        lastBuildStatus: $.lastBuildStatus,
-                        lastBuildLabel: $.lastBuildLabel || null,
-                        lastBuildTime: $.lastBuildTime,
-                        nextBuildTime: $.nextBuildTime || null,
-                        webUrl: $.webUrl,
-                      };
-
-                      /* Convert the times to Date objects */
-                      const dates = [
-                        'lastBuildTime',
-                        'nextBuildTime',
-                      ];
-
-                      dates.forEach((key) => {
-                        if (project[key] !== null) {
-                          project[key] = new Date(project[key]);
-                        }
-                      });
-
-                      const includeProject = () => item.repos
-                        .find(repo => repo.name === project.name);
-
-                      const ignoreProject = () => Array
-                        .isArray(item.ignore) && item.ignore.includes(project.name);
-
-                      if ((getAll || includeProject()) && !ignoreProject()) {
-                        result.push(project);
-                      }
-
-                      return result;
-                    }, []);
-
-                    logger.trigger('trace', 'Parsed XML to JSON successfully', {
-                      data: out,
-                    });
-
-                    resolve(out);
-                  } catch (xmlErr) {
-                    /* Wrong format - return empty array */
-                    logger.trigger('warn', 'XML in wrong format', {
-                      err: xmlErr,
-                      data: parsedXml,
-                    });
-
-                    resolve([]);
-                  }
-                });
-              }))
-              .then((repos) => {
-                /* Add in the latest repo version */
-                item.repos = repos;
-
-                return item;
-              });
-          });
+          /* Build a task list */
+          const tasks = settings.map(item => queryRepo(item));
 
           return Promise.all(tasks);
         })
-        .then((data) => {
+        .then((repos) => {
           /* Update the state with the new data */
-          commit('updateRepos', data);
+          commit('updateRepos', {
+            repos,
+          });
 
           /* Return the state */
-          return data;
+          return repos;
+        })
+        .catch((err) => {
+          logger.trigger('error', 'Error getting latest repo status', {
+            err,
+          });
+
+          return Promise.reject(err);
         });
     },
 
@@ -213,10 +249,10 @@ export default {
 
   mutations: {
 
-    updateRepos (state, newState) {
+    updateRepos (state, { repos }) {
       logger.trigger('trace', 'Updating repo state');
 
-      Vue.set(state, 'repos', newState);
+      Vue.set(state, 'repos', repos);
 
       Vue.set(state, 'updated', true);
     },
