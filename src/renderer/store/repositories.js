@@ -39,7 +39,7 @@ const config = {
  *
  * @param {string} input
  * @param {{ all: boolean, ignore: string[], name: string, repos: [] }} repo
- * @returns {Promise.<TResult>}
+ * @returns {Promise.<*>}
  */
 const parseXML = (input, repo) => new Promise((resolve) => {
   /* Lower case the tag for easy traversing */
@@ -98,15 +98,15 @@ const parseXML = (input, repo) => new Promise((resolve) => {
         }
       });
 
-      // const includeProject = () => repo.repos
-      //   .find(item => item.name === project.name);
-      //
-      // const ignoreProject = () => Array
-      //   .isArray(repo.ignore) && repo.ignore.includes(project.name);
-      //
-      // if ((getAll || includeProject()) && !ignoreProject()) {
-      result.push(project);
-      // }
+      const includeProject = () => repo.repos
+        .find(item => item.name === project.name);
+
+      const ignoreProject = () => Array
+        .isArray(repo.ignore) && repo.ignore.includes(project.name);
+
+      if ((getAll || includeProject()) && !ignoreProject()) {
+        result.push(project);
+      }
 
       return result;
     }, []);
@@ -134,7 +134,7 @@ const parseXML = (input, repo) => new Promise((resolve) => {
  * status
  *
  * @param {{ all: boolean, ignore: string[], name: string, repos: string[], url: string }} repo
- * @returns {Promise.<TResult>}
+ * @returns {Promise.<*>}
  */
 const queryRepo = (repo) => {
   const axiosConfig = {
@@ -149,7 +149,7 @@ const queryRepo = (repo) => {
         url: repo.url,
       });
 
-      return {};
+      return Promise.reject(new Error('CONNECTION_ERROR'));
     })
     .then(({ data }) => parseXML(data, repo))
     .then((repos) => {
@@ -207,6 +207,9 @@ export default {
     loadLatestStatus ({ commit, dispatch }) {
       logger.trigger('trace', 'repo store loadLatestStatus');
 
+      /* Clear all errors */
+      commit('setError');
+
       return dispatch('getSettings')
         .then((settings) => {
           /* Ensure the settings is an array */
@@ -219,19 +222,34 @@ export default {
 
           return Promise.all(tasks);
         })
-        .then((repos) => {
+        .then((data) => {
+          data.forEach(({ repos }) => repos.forEach((repo) => {
+            const id = repo.lastBuildLabel || repo.lastBuildTime;
+            const name = repo.name;
+            const status = repo.lastBuildStatus;
+            const buildTime = new Date(repo.lastBuildTime);
+
+            commit('addHistory', {
+              buildTime,
+              id,
+              name,
+              status,
+            });
+          }));
+
           /* Update the state with the new data */
-          commit('updateRepos', {
-            repos,
-          });
+          commit('updateRepos', data);
 
           /* Return the state */
-          return repos;
+          return data;
         })
         .catch((err) => {
           logger.trigger('error', 'Error getting latest repo status', {
             err,
           });
+
+          /* Set the error */
+          commit('setError', err);
 
           return Promise.reject(err);
         });
@@ -241,6 +259,26 @@ export default {
 
   getters: {
 
+    error: state => state.error,
+
+    history: state => (repo) => {
+      if (_.has(state.history, repo) === false) {
+        return [];
+      }
+
+      const repos = state.history[repo];
+
+      return repos.order.map((id) => {
+        const { buildTime, status } = repos.items[id];
+
+        return {
+          id,
+          buildTime,
+          status,
+        };
+      });
+    },
+
     repos: state => state.repos,
 
     updated: state => state.updated,
@@ -249,7 +287,29 @@ export default {
 
   mutations: {
 
-    updateRepos (state, { repos }) {
+    addHistory (state, { buildTime, id, name, status }) {
+      if (_.has(state.history, name) === false) {
+        state.history[name] = {
+          order: [],
+          items: {},
+        };
+      }
+
+      if (_.has(state.history[name].items, id) === false) {
+        /* Record a new state */
+        state.history[name].items[id] = {
+          buildTime,
+          status,
+        };
+        state.history[name].order.push(id);
+      }
+    },
+
+    setError (state, err = false) {
+      state.error = err;
+    },
+
+    updateRepos (state, repos) {
       logger.trigger('trace', 'Updating repo state');
 
       Vue.set(state, 'repos', repos);
@@ -260,6 +320,8 @@ export default {
   },
 
   state: {
+    error: false,
+    history: {},
     repos: [],
     updated: false,
   },
