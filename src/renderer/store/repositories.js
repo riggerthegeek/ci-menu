@@ -138,10 +138,6 @@ export default {
      * @returns {Promise.<*>}
      */
     parseXML (store, { input, repo }) {
-      console.log({
-        input,
-        repo,
-      });
       return new Promise((resolve) => {
         /* Lower case the tag for easy traversing */
         const opts = {
