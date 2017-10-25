@@ -136,6 +136,15 @@ describe('repositories store test', function () {
 
     });
 
+    describe('#loadLatestStatus', function () {
+
+      beforeEach(function () {
+        this.commit = sinon.spy();
+        this.dispatch = sinon.stub();
+      });
+
+    });
+
   });
 
   describe('getters', function () {
