@@ -37,7 +37,9 @@
               v-progress-circular(
                 v-if="repo.activity === 'building'",
                 indeterminate,
-                color="yellow"
+                color="primary",
+                :size="40",
+                :width="5"
               )
 
               img(
