@@ -114,7 +114,6 @@
 
               result.push({
                 activity,
-//                img: this.statusToImgName(status),
                 status,
                 title: repo.name,
                 url: repo.webUrl,
