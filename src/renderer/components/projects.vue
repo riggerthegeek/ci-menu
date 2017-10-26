@@ -34,7 +34,14 @@
           )
 
             v-list-tile-avatar
+              v-progress-circular(
+                v-if="repo.activity === 'building'",
+                indeterminate,
+                color="yellow"
+              )
+
               img(
+                v-else,
                 :src="statusToImg(repo.status)"
               )
 
@@ -102,10 +109,12 @@
         const repositories = this.$store.getters.repos
           .reduce((result, { repos }) => {
             repos.forEach((repo) => {
+              const activity = repo.activity.toLowerCase();
               const status = repo.lastBuildStatus.toLowerCase();
 
               result.push({
-                img: this.statusToImgName(status),
+                activity,
+//                img: this.statusToImgName(status),
                 status,
                 title: repo.name,
                 url: repo.webUrl,
