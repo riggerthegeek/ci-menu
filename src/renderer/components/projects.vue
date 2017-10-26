@@ -35,7 +35,7 @@
 
             v-list-tile-avatar
               v-progress-circular(
-                v-if="repo.activity === 'building'",
+                v-if="repo.isBuilding",
                 indeterminate,
                 color="primary",
                 :size="40",
@@ -113,9 +113,11 @@
             repos.forEach((repo) => {
               const activity = repo.activity.toLowerCase();
               const status = repo.lastBuildStatus.toLowerCase();
+              const isBuilding = activity === 'building' || !repo.lastBuildTime;
 
               result.push({
                 activity,
+                isBuilding,
                 status,
                 title: repo.name,
                 url: repo.webUrl,

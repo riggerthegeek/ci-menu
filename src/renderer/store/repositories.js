@@ -100,7 +100,7 @@ export default {
             const id = repo.lastBuildLabel || repo.lastBuildTime;
             const name = repo.name;
             const status = repo.lastBuildStatus;
-            const buildTime = new Date(repo.lastBuildTime);
+            const buildTime = repo.lastBuildTime;
 
             commit('addHistory', {
               buildTime,
@@ -191,7 +191,14 @@ export default {
 
             dates.forEach((key) => {
               if (project[key] !== null) {
-                project[key] = new Date(project[key]);
+                let date = new Date(project[key]);
+
+                if (isNaN(date.getTime())) {
+                  /* Invalid date */
+                  date = null;
+                }
+
+                project[key] = date;
               }
             });
 
