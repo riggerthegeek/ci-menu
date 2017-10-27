@@ -10,6 +10,7 @@ import { app, Menu, nativeImage, shell, Tray } from 'electron';
 /* Files */
 
 const iconTypes = [
+  'building',
   'partial',
   'fail',
   'pass',

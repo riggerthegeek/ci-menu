@@ -117,6 +117,7 @@
 
               result.push({
                 activity,
+                img: this.statusToImgName(status, isBuilding),
                 isBuilding,
                 status,
                 title: repo.name,
@@ -162,13 +163,18 @@
         return shell.openExternal(url);
       },
 
-      statusToImgName (status) {
+      statusToImgName (status, building = false) {
         const statuses = {
+          building: 'building',
           exception: 'fail',
           failure: 'fail',
           success: 'pass',
           unknown: 'unknown',
         };
+
+        if (building) {
+          status = 'building';
+        }
 
         /* Default to unknown */
         return statuses[status] || statuses.unknown;
