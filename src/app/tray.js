@@ -28,8 +28,9 @@ const icons = iconTypes.reduce((result, type) => {
 }, {});
 
 const setContextMenu = (i18next, tray, repos = []) => {
-  const passes = [];
+  const building = [];
   const fails = [];
+  const passes = [];
 
   const menuContents = repos.map((repo) => {
     if (repo.status === 'success') {
@@ -38,6 +39,10 @@ const setContextMenu = (i18next, tray, repos = []) => {
     } else {
       /* Didn't pass - treat as failed */
       fails.push(repo);
+    }
+
+    if (repo.isBuilding) {
+      building.push(repo);
     }
 
     return {
@@ -68,7 +73,10 @@ const setContextMenu = (i18next, tray, repos = []) => {
   /* Get the tray icon - default to unknown */
   let trayImg = icons.unknown;
 
-  if (passes.length > 0 && fails.length === 0) {
+  if (building.length > 0) {
+    /* Building */
+    trayImg = icons.building;
+  } else if (passes.length > 0 && fails.length === 0) {
     /* All passed - no failures */
     trayImg = icons.pass;
   } else if (passes.length === 0 && fails.length > 0) {

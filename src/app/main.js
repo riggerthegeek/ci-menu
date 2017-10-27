@@ -8,7 +8,7 @@
 /* Node modules */
 
 /* Third-party modules */
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, screen, shell } from 'electron';
 import { enableLiveReload } from 'electron-compile';
 import yargs from 'yargs';
 
@@ -50,6 +50,17 @@ function createWindow () {
 
   const show = yargs.argv.hide === false;
 
+  let xPos = 0;
+  let yPos = 0;
+
+  const displays = screen.getAllDisplays();
+  const mainDisplay = displays.find(({ id }) => id === 0);
+
+  if (mainDisplay) {
+    xPos = (mainDisplay.size.width - width) / 2;
+    yPos = (mainDisplay.size.height - height) / 2;
+  }
+
   const opts = {
     frame: false,
     fullscreenable: false,
@@ -61,6 +72,8 @@ function createWindow () {
     show: false,
     title: pkg.productName,
     width,
+    x: xPos,
+    y: yPos,
   };
 
   app.logger.trigger('trace', 'Creating browser window with opts', {
