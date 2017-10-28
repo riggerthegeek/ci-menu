@@ -83,8 +83,13 @@
     created () {
       /* Watch for changes to the repo store */
       this.$store.subscribe((mutation) => {
-        if (mutation.type === 'updateRepos') {
-          this.fetchData();
+        switch (mutation.type) {
+          case 'updateRepos':
+            this.fetchData();
+            break;
+
+          default:
+            break;
         }
       });
 

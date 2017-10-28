@@ -80,9 +80,6 @@ export default {
     loadLatestStatus ({ commit, dispatch }) {
       logger.trigger('trace', 'repo store loadLatestStatus');
 
-      /* Clear all errors */
-      commit('setError');
-
       return dispatch('getSettings')
         .then((settings) => {
           /* Ensure the settings is an array */
@@ -121,9 +118,6 @@ export default {
             err,
           });
 
-          /* Set the error */
-          commit('setError', err);
-
           return Promise.reject(err);
         });
     },
@@ -133,6 +127,7 @@ export default {
      *
      * Parses the XML into JSON format
      *
+     * @param {*} store
      * @param {string} input
      * @param {{ all: boolean, ignore: string[], name: string, repos: [] }} repo
      * @returns {Promise.<*>}
@@ -238,11 +233,11 @@ export default {
      * Queries the repository and gets the
      * status
      *
-     * @param {*} store
-     * @param {{ all: boolean, ignore: string[], name: string, repos: string[], url: string }} repo
+     * @param {*} dispatch
+     * @param {*} repo
      * @returns {Promise.<*>}
      */
-    queryRepo (store, repo) {
+    queryRepo ({ dispatch }, repo) {
       const axiosConfig = {
         timeout: 10000,
       };
@@ -255,9 +250,9 @@ export default {
             url: repo.url,
           });
 
-          return Promise.reject(new Error('CONNECTION_ERROR'));
+          repo.err = err;
         })
-        .then(({ data }) => store.dispatch('parseXML', { input: data, repo }))
+        .then(({ data } = {}) => dispatch('parseXML', { input: data, repo }))
         .then((repos) => {
           /* Add in the latest repo version */
           repo.repos = repos;
@@ -269,8 +264,6 @@ export default {
   },
 
   getters: {
-
-    error: state => state.error,
 
     history: state => (repo) => {
       if (_.has(state.history, repo) === false) {
@@ -316,10 +309,6 @@ export default {
       }
     },
 
-    setError (state, err = false) {
-      state.error = err;
-    },
-
     updateRepos (state, repos) {
       logger.trigger('trace', 'Updating repo state');
 
@@ -331,7 +320,6 @@ export default {
   },
 
   state: {
-    error: false,
     history: {},
     repos: [],
     updated: false,
