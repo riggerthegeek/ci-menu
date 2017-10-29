@@ -93,20 +93,6 @@ export default {
           return Promise.all(tasks);
         })
         .then((data) => {
-          data.forEach(({ repos }) => repos.forEach((repo) => {
-            const id = repo.lastBuildLabel || repo.lastBuildTime;
-            const name = repo.name;
-            const status = repo.lastBuildStatus;
-            const buildTime = repo.lastBuildTime;
-
-            commit('addHistory', {
-              buildTime,
-              id,
-              name,
-              status,
-            });
-          }));
-
           /* Update the state with the new data */
           commit('updateRepos', data);
 
@@ -265,24 +251,6 @@ export default {
 
   getters: {
 
-    history: state => (repo) => {
-      if (_.has(state.history, repo) === false) {
-        return [];
-      }
-
-      const repos = state.history[repo];
-
-      return repos.order.map((id) => {
-        const { buildTime, status } = repos.items[id];
-
-        return {
-          id,
-          buildTime,
-          status,
-        };
-      });
-    },
-
     repos: state => state.repos,
 
     updated: state => state.updated,
@@ -290,24 +258,6 @@ export default {
   },
 
   mutations: {
-
-    addHistory (state, { buildTime, id, name, status }) {
-      if (_.has(state.history, name) === false) {
-        state.history[name] = {
-          order: [],
-          items: {},
-        };
-      }
-
-      if (_.has(state.history[name].items, id) === false) {
-        /* Record a new state */
-        state.history[name].items[id] = {
-          buildTime,
-          status,
-        };
-        state.history[name].order.push(id);
-      }
-    },
 
     updateRepos (state, repos) {
       logger.trigger('trace', 'Updating repo state');
