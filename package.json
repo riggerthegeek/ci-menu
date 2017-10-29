@@ -44,7 +44,6 @@
   "homepage": "https://github.com/riggerthegeek/ci-menu#readme",
   "dependencies": {
     "@panter/vue-i18next": "^0.7.1",
-    "@steeplejack/data": "^1.0.1",
     "axios": "^0.16.2",
     "bunyan": "^1.8.12",
     "electron": "^1.7.8",
