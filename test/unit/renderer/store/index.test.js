@@ -23,12 +23,14 @@ describe('store tests', function () {
       Store: sinon.stub()
         .returns(vuexInst),
     };
+    const notifications = 'notifications';
     const repositories = 'repos';
     const settings = 'settings';
 
     const store = proxyquire('../../src/renderer/store', {
       'vue/dist/vue.min': Vue,
       'vuex/dist/vuex': Vuex,
+      './notifications': notifications,
       './repositories': repositories,
       './settings': settings,
     });
@@ -46,6 +48,7 @@ describe('store tests', function () {
       .calledWithNew
       .calledWithExactly({
         modules: {
+          notifications,
           repositories,
           settings,
         },
