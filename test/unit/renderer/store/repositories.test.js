@@ -180,7 +180,6 @@ describe('repositories store test', function () {
     it('should get the default state data', function () {
 
       expect(this.repositories.state).to.be.eql({
-        error: false,
         history: {},
         repos: [],
         updated: false,
