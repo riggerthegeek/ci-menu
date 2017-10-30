@@ -52,15 +52,19 @@ export default {
   },
 
   getters: {
+
+    notify: state => state.notify,
+
     notifyOpts: () => [
       'all', // Notify whenever a build has finished
       'change', // Notify when a change is detected
       'fail', // Notify when new status is not 'Success'
     ],
+
   },
 
   state: {
-    notify: 'all',
+    notify: 'change',
   },
 
 };
