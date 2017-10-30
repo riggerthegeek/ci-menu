@@ -1,9 +1,14 @@
 {
+  "DND_END": "End time",
+  "DND_START": "Start time",
   "EXCEPTION": "{{- name }} has errored {{ build }}",
   "FAILURE": "{{- name }} has failed {{ build }}",
   "OPT_ALL": "Display on all builds",
   "OPT_CHANGE": "Display on status change",
   "OPT_FAIL": "Display on unsuccessful build",
+  "OPT_NEVER": "Never",
+  "SHOW_DND": "Hide notifications between:",
   "SUCCESS": "{{- name }} is now passing {{ build }}",
-  "UNKNOWN": "{{- name }} is in an unknown state {{ build }}"
+  "UNKNOWN": "{{- name }} is in an unknown state {{ build }}",
+  "WHEN_TO_ALERT": "When do you want alerts?"
 }
