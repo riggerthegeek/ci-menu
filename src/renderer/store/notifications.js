@@ -7,6 +7,7 @@
 /* Third-party modules */
 import { _ } from 'lodash';
 import { remote } from 'electron';
+import moment from 'moment';
 import Vue from 'vue/dist/vue.min';
 
 /* Files */
@@ -21,6 +22,29 @@ try {
   stateData = JSON.parse(localStorage[storageKey]);
 } catch (err) {
   /* Use default */
+}
+
+/**
+ * Get Date
+ *
+ * Gets the date for the given time,
+ * adding a number of days to it relative
+ * to today
+ *
+ * @param {string} time
+ * @param {number} day
+ * @returns {Date}
+ */
+function getDate (time, day = 0) {
+  const [hours, mins] = time.split(':');
+
+  return moment()
+    .hour(hours)
+    .minute(mins)
+    .seconds(0)
+    .milliseconds(0)
+    .add(day, 'days')
+    .toDate();
 }
 
 export default {
@@ -97,26 +121,38 @@ export default {
      */
     doNotDisturb: state => () => {
       if (state.dnd) {
-        /*
-        const dndStart = state.dndStart.split(':');
-        const dndEnd = state.dndEnd.split(':');
-
         const dates = [];
 
-        const startTime = moment()
-          .hour(dndStart[0])
-          .minute(dndStart[1])
-          .seconds(0)
-          .milliseconds(0);
+        const startDate = getDate(state.dndStart);
+        const endDate = getDate(state.dndEnd);
+        const now = Date.now();
 
-        const endTime = moment()
-          .hour(dndEnd[0])
-          .minute(dndEnd[1])
-          .seconds(0)
-          .milliseconds(0);
-          */
+        /* Check if DND period goes overnight */
+        if (endDate.getTime() < startDate.getTime()) {
+          /* Add in start time for yesterday and end time for today */
+          dates.push({
+            startDate: getDate(state.dndStart, -1),
+            endDate: getDate(state.dndEnd),
+          });
 
-        return true;
+          /* Add in start time for today and end time for tomorrow */
+          dates.push({
+            startDate: getDate(state.dndStart, 0),
+            endDate: getDate(state.dndEnd, 1),
+          });
+        } else {
+          /* It's all on one day */
+          dates.push({
+            startDate,
+            endDate,
+          });
+        }
+
+        /* Check that we're not inside a DND period */
+        const match = dates
+          .find(period => (period.startDate <= now && now <= period.endDate));
+
+        return !!match;
       }
 
       /* Nope */
