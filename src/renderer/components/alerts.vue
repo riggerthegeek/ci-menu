@@ -70,22 +70,6 @@
   export default {
 
     data () {
-      const state = {
-        id: 'id',
-        status: 'success',
-        title: 'hello/world',
-      };
-      const previousState = {
-        status: 'fail',
-      };
-
-      this.$store.dispatch('notify', {
-        i18n: this.$i18n,
-        newState: state,
-        oldState: previousState,
-      });
-
-
       const times = [];
 
       for (let hour = 0; hour < 24; hour += 1) {
