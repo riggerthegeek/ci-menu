@@ -93,12 +93,12 @@ export default {
         return new Notification(msg, {
           tag: build,
         });
-      } else {
-        logger.trigger('debug', 'Not notifying of build', {
-          newState,
-          oldState,
-        });
       }
+
+      logger.trigger('debug', 'Not notifying of build', {
+        newState,
+        oldState,
+      });
 
       return false;
     },
