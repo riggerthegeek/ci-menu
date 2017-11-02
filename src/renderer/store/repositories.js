@@ -238,7 +238,10 @@ export default {
 
           repo.err = err;
         })
-        .then(({ data } = {}) => dispatch('parseXML', { input: data, repo }))
+        .then(({ data } = {}) => dispatch('parseXML', {
+          input: data,
+          repo,
+        }))
         .then((repos) => {
           /* Add in the latest repo version */
           repo.repos = repos;
@@ -270,7 +273,6 @@ export default {
   },
 
   state: {
-    history: {},
     repos: [],
     updated: false,
   },

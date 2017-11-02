@@ -101,7 +101,6 @@
 
     data () {
       return {
-        history: {},
         loading: true,
         repos: [],
       };
@@ -121,7 +120,7 @@
               const status = repo.lastBuildStatus.toLowerCase();
               const isBuilding = activity === 'building' || !repo.lastBuildTime;
 
-              const state = {
+              result.push({
                 activity,
                 id: repo.lastBuildLabel,
                 img: this.statusToImgName(status, isBuilding),
@@ -129,20 +128,7 @@
                 status,
                 title: repo.name,
                 url: repo.webUrl,
-              };
-
-              result.push(state);
-
-              const previousState = this.history[repo.name] || {};
-
-              if (!isBuilding && previousState.isBuilding) {
-                /* We've just finished building */
-                this.$store.dispatch('notify', {
-                  i18n: this.$i18n,
-                  newState: state,
-                  oldState: previousState,
-                });
-              }
+              });
             });
 
             return result;
@@ -160,14 +146,6 @@
         /* Update the tray */
         remote.app.emit('update-repos', repositories);
 
-        const previousState = this.repos.reduce((result, repo) => {
-          if (repo.title) {
-            result[repo.title] = repo;
-          }
-
-          return result;
-        }, {});
-
         this.loading = false;
         this.repos = repositories.reduce((result, repo) => {
           result.push(repo);
@@ -177,9 +155,6 @@
 
           return result;
         }, []);
-
-        /* Set the history after the repos - timing issue if before */
-        this.history = previousState;
       },
 
       /**

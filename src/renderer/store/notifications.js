@@ -55,12 +55,16 @@ export default {
       /* Default to always notify */
       let toNotify = true;
 
-      const buildLabel = newState.id;
-      const newStatus = newState.status;
-      const oldStatus = oldState.status;
+      const buildLabel = newState.lastBuildLabel;
+      const newStatus = newState.lastBuildStatus;
+      const oldStatus = oldState.lastBuildStatus;
       const build = buildLabel ? `#${buildLabel}` : '';
 
       switch (state.notify) {
+        case 'all':
+          toNotify = true;
+          break;
+
         case 'change':
           toNotify = newStatus !== oldStatus;
           break;
@@ -77,7 +81,7 @@ export default {
 
       const msg = i18n.t(`notifications:${newStatus.toUpperCase()}`, {
         build,
-        name: newState.title,
+        name: newState.name,
       });
 
       if (toNotify && !getters.doNotDisturb()) {

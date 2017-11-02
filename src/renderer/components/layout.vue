@@ -78,6 +78,17 @@
 
   const logger = remote.app.logger.trigger;
 
+  function isBuilding (repo) {
+    const activity = repo.activity.toLowerCase();
+    const status = repo.lastBuildStatus.toLowerCase();
+    const building = activity === 'building' || !repo.lastBuildTime;
+
+    return {
+      building,
+      status,
+    };
+  }
+
   export default {
 
     created () {
@@ -99,6 +110,7 @@
           icon: 'close',
           tooltip: i18n.t('common:CLOSE_WINDOW'),
         }],
+        history: {},
         interval: null,
         lastChecked: null,
         pages: [{
@@ -114,6 +126,7 @@
           icon: 'settings',
           name: i18n.t('components:SETTINGS'),
         }],
+        repos: {},
         toolbar: [{
           action: () => this.updateRepos(true),
           color: 'green black--text',
@@ -197,18 +210,47 @@
           return Promise.resolve();
         }
 
-        this.updatingRepos = true;
-
         logger('trace', 'Repo update - starting');
 
+        this.updatingRepos = true;
+
+        this.history = this.repos;
+
         return this.$store.dispatch('loadLatestStatus')
-          .then((result) => {
+          .then((data) => {
             logger('trace', 'Repo update - finished');
+
+            /* Add the repo status */
+            this.repos = data.reduce((result, { repos }) => {
+              repos.forEach((repo) => {
+                result[repo.name] = repo;
+
+                const history = this.history[repo.name];
+
+                if (history) {
+                  const states = {
+                    history: isBuilding(history),
+                    latest: isBuilding(repo),
+                  };
+
+                  if (states.history.building && !states.latest.building) {
+                    /* We've just finished building */
+                    this.$store.dispatch('notify', {
+                      i18n: this.$i18n,
+                      newState: repo,
+                      oldState: history,
+                    });
+                  }
+                }
+              });
+
+              return result;
+            }, {});
 
             this.lastChecked = moment();
             this.updatingRepos = false;
 
-            return result;
+            return data;
           })
           .catch((err) => {
             logger('trace', 'Repo update - error', {
