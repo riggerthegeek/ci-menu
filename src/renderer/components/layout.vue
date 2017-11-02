@@ -235,6 +235,11 @@
 
                   if (states.history.building && !states.latest.building) {
                     /* We've just finished building */
+                    logger.info('info', 'Building has finished', {
+                      repo,
+                      history,
+                    });
+
                     this.$store.dispatch('notify', {
                       i18n: this.$i18n,
                       newState: repo,

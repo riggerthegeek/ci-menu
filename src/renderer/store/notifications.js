@@ -85,8 +85,18 @@ export default {
       });
 
       if (toNotify && !getters.doNotDisturb()) {
+        logger.trigger('debug', 'Notifying of build', {
+          newState,
+          oldState,
+        });
+
         return new Notification(msg, {
           tag: build,
+        });
+      } else {
+        logger.trigger('debug', 'Not notifying of build', {
+          newState,
+          oldState,
         });
       }
 
@@ -100,6 +110,11 @@ export default {
         dndStart,
         notify,
       };
+
+      logger.trigger('debug', 'Saving notification settings', {
+        data,
+        storageKey,
+      });
 
       /* Save to local storage */
       localStorage[storageKey] = JSON.stringify(data);
@@ -152,12 +167,29 @@ export default {
           });
         }
 
+        logger.trigger('debug', 'Do no disturb periods', {
+          dates,
+          dndStart: state.dndStart,
+          dndEnd: state.dndEnd,
+          now,
+        });
+
         /* Check that we're not inside a DND period */
         const match = dates
           .find(period => (period.startDate <= now && now <= period.endDate));
 
-        return !!match;
+        const doNotDisturb = !!match;
+
+        if (doNotDisturb) {
+          logger.trigger('debug', 'Notification suppressed due to do not disturb', {
+            match,
+          });
+        }
+
+        return doNotDisturb;
       }
+
+      logger.trigger('trace', 'No do not disturb period configured');
 
       /* Nope */
       return false;
