@@ -43,8 +43,8 @@
   },
   "homepage": "https://github.com/riggerthegeek/ci-menu#readme",
   "dependencies": {
-    "@panter/vue-i18next": "^0.7.1",
-    "axios": "^0.16.2",
+    "@panter/vue-i18next": "^0.8.0",
+    "axios": "^0.17.0",
     "bunyan": "^1.8.12",
     "electron": "^1.7.8",
     "electron-compile": "^6.4.2",
@@ -61,7 +61,7 @@
     "vuetify": "^0.16.5",
     "vuex": "^3.0.0",
     "xml2js": "^0.4.19",
-    "yargs": "^9.0.1"
+    "yargs": "^10.0.0"
   },
   "devDependencies": {
     "chai": "^4.1.0",
