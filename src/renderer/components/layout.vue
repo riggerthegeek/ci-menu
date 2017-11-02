@@ -235,7 +235,7 @@
 
                   if (states.history.building && !states.latest.building) {
                     /* We've just finished building */
-                    logger.info('info', 'Building has finished', {
+                    logger.trigger('info', 'Building has finished', {
                       repo,
                       history,
                     });
