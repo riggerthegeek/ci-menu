@@ -30,7 +30,7 @@ yargs
       type: 'boolean',
     },
   })
-  .version(pkg.version)
+  .version(app.getVersion())
   .help()
   .argv;
 
