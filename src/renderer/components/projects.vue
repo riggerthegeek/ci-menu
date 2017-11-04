@@ -64,6 +64,19 @@
               )
                 v-icon edit
 
+      v-container(
+        v-else
+      )
+
+        v-btn(
+          block
+          color="primary",
+          @click="newRepo()"
+        ) {{ $t('common:ADD_REPO') }}
+
+          v-icon add
+
+
 </template>
 
 <script>
@@ -155,6 +168,12 @@
 
           return result;
         }, []);
+      },
+
+      newRepo () {
+        return this.$router.push({
+          name: 'repo',
+        });
       },
 
       /**

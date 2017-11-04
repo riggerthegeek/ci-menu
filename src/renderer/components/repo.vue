@@ -16,34 +16,39 @@
         )
 
           v-text-field(
-            label="URL",
+            :label="$t('repo:URL')",
             required,
             :rules="urlRules",
             v-model="url"
           )
 
-          v-checkbox(
-            label="The server requires validation",
+          v-switch(
+            :label="$t('repo:REQUIRES_AUTH')",
             v-model="auth"
           )
 
           v-text-field(
-            label="Username",
+            :label="$t('repo:USERNAME')",
             v-model="username",
-            :disabled="!auth"
+            :disabled="!auth",
+            :rules="conditionalRequired",
+            :required="auth"
           )
 
           v-text-field(
-            label="Password",
+            :label="$t('repo:PASSWORD')",
             v-model="password",
             type="password",
-            :disabled="!auth"
+            :disabled="!auth",
+            :rules="conditionalRequired",
+            :required="auth"
           )
 
           v-btn(
-            @click="submit",
-            :disabled="!valid"
-          ) Save
+            color="primary",
+            @click="getRepos",
+          ) {{ $t('buttons:SAVE') }}
+
 </template>
 
 <script>
@@ -62,20 +67,44 @@
     data () {
       return {
         auth: false,
+        conditionalRequired: [
+          (value) => {
+            if (!this.auth) {
+              return true;
+            }
+
+            return !!value || this.$i18n.t('common:REQUIRED');
+          },
+        ],
+        repos: [],
         valid: false,
         url: '',
         urlRules: [
-          value => !!value || 'Required',
+          value => !!value || this.$i18n.t('common:REQUIRED'),
         ],
       };
     },
 
     methods: {
 
-      submit () {
-        if (this.$refs.form.validate()) {
-          console.log('yay');
+      getRepos () {
+        if (!this.$refs.form.validate()) {
+          return undefined;
         }
+
+        return this.$store.dispatch('queryRepo', {
+          url: this.url,
+        }).then(({ repos }) => {
+          if (repos.length === 0) {
+            throw new Error('NO_REPOS');
+          }
+
+          this.repos = repos;
+        }).catch((err) => {
+          console.log({
+            err,
+          });
+        });
       },
 
     },
