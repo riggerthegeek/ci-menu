@@ -29,7 +29,7 @@
             :max="maxTimeout"
           )
 
-          div {{ appName }} v{{ version }}
+          div {{ $t('common:APP_NAME') }} v{{ version }}
 
 </template>
 
@@ -49,7 +49,6 @@
 
     data () {
       return {
-        appName: 'CI Menu',
         data: {
           timeout: this.$store.getters.updateInterval,
         },
