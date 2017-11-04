@@ -36,6 +36,48 @@ export default {
 
   actions: {
 
+    addRepo ({ dispatch }, { all, ignore, repos, url }) {
+      return dispatch('getSettings')
+        .then((settings) => {
+          if (!Array.isArray(settings)) {
+            settings = [];
+          }
+
+          settings.push({
+            all,
+            ignore,
+            repos,
+            url,
+          });
+
+          const filePath = path.join(config.dataPath, config.dataFile);
+
+          return new Promise((resolve, reject) => {
+            /* Return the data */
+            logger.trigger('trace', 'repo store saveSettings', {
+              filePath,
+            });
+
+            const data = JSON.stringify(settings, null, 2);
+
+            fs.writeFile(filePath, data, 'utf8', (err) => {
+              if (err) {
+                logger.trigger('error', 'repo store saveSettings error', {
+                  err,
+                  filePath,
+                  data,
+                });
+
+                reject(err);
+                return;
+              }
+
+              resolve(settings);
+            });
+          });
+        });
+    },
+
     getSettings () {
       const filePath = path.join(config.dataPath, config.dataFile);
 

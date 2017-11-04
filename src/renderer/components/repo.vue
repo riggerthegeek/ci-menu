@@ -1,53 +1,125 @@
 <template lang="jade">
-  v-container(
-    fluid
-    grid-list-md
-  )
-    v-layout(
-      row
-      wrap
+  div
+    v-alert(
+      color="danger",
+      icon="check_circle",
+      value="true",
+      transition="scale-transition"
+      v-if="error"
+    ) {{ $t('error:' + (error.message || 'UNKNOWN')) }}
+
+    v-container(
+      fluid
+      grid-list-md
     )
-      v-flex
+      v-layout(
+        row
+        wrap
+      )
+        v-flex
 
-        v-form(
-          v-model="valid"
-          ref="form"
-          lazy-validation
-        )
-
-          v-text-field(
-            :label="$t('repo:URL')",
-            required,
-            :rules="urlRules",
-            v-model="url"
+          v-stepper(
+            v-model="step",
+            vertical
           )
 
-          v-switch(
-            :label="$t('repo:REQUIRES_AUTH')",
-            v-model="auth"
-          )
+            v-stepper-step(
+              step="1",
+              v-bind:complete="step > 1"
+            ) step 1
+              small {{ url }}
 
-          v-text-field(
-            :label="$t('repo:USERNAME')",
-            v-model="username",
-            :disabled="!auth",
-            :rules="conditionalRequired",
-            :required="auth"
-          )
+            v-stepper-content(
+              step="1"
+            )
 
-          v-text-field(
-            :label="$t('repo:PASSWORD')",
-            v-model="password",
-            type="password",
-            :disabled="!auth",
-            :rules="conditionalRequired",
-            :required="auth"
-          )
+              v-form(
+                v-model="valid"
+                ref="form"
+                lazy-validation
+              )
 
-          v-btn(
-            color="primary",
-            @click="getRepos",
-          ) {{ $t('buttons:SAVE') }}
+                v-text-field(
+                  :label="$t('repo:URL')",
+                  required,
+                  :rules="urlRules",
+                  v-model="url"
+                )
+
+                v-switch(
+                  :label="$t('repo:REQUIRES_AUTH')",
+                  v-model="auth"
+                )
+
+                v-text-field(
+                  :label="$t('repo:USERNAME')",
+                  v-model="username",
+                  :disabled="!auth",
+                  :rules="conditionalRequired",
+                  :required="auth"
+                )
+
+                v-text-field(
+                  :label="$t('repo:PASSWORD')",
+                  v-model="password",
+                  type="password",
+                  :disabled="!auth",
+                  :rules="conditionalRequired",
+                  :required="auth"
+                )
+
+                v-btn(
+                  color="primary",
+                  @click="getRepos",
+                ) {{ $t('buttons:NEXT') }}
+
+            v-stepper-step(
+              step="2",
+              v-bind:complete="step > 2"
+            ) step2
+
+            v-stepper-content(
+              step="2"
+            )
+
+              v-switch(
+                :label="$t('repo:SHOW_ALL_REPOS')",
+                v-model="allRepos"
+              )
+
+              v-checkbox(
+                v-for="repo in repos",
+                :label="repo.name",
+                :value="repo.name",
+                v-model="reposToAdd",
+                v-if="!allRepos"
+              )
+
+              v-btn(
+                color="primary",
+                @click.native="step = 3",
+              ) {{ $t('buttons:NEXT') }}
+
+            v-stepper-step(
+              step="3"
+              v-bind:complete="step > 3"
+            ) step3
+
+            v-stepper-content(
+              step="3"
+            )
+
+              v-checkbox(
+                v-for="repo in repos",
+                :label="repo.name",
+                :value="repo.name",
+                v-model="reposToIgnore"
+              )
+
+              v-btn(
+                color="primary",
+                @click="save",
+              ) {{ $t('buttons:SAVE') }}
 
 </template>
 
@@ -66,6 +138,7 @@
 
     data () {
       return {
+        allRepos: false,
         auth: false,
         conditionalRequired: [
           (value) => {
@@ -76,7 +149,11 @@
             return !!value || this.$i18n.t('common:REQUIRED');
           },
         ],
+        error: false,
+        reposToAdd: [],
+        reposToIgnore: [],
         repos: [],
+        step: 0,
         valid: false,
         url: '',
         urlRules: [
@@ -100,11 +177,41 @@
           }
 
           this.repos = repos;
+          this.allRepos = true;
+          this.step = 2;
         }).catch((err) => {
-          console.log({
-            err,
-          });
+          this.error = err;
         });
+      },
+
+      save () {
+        const data = {
+          all: this.allRepos,
+          ignore: this.reposToIgnore,
+          repos: this.reposToAdd,
+          url: this.url,
+        };
+
+        if (data.all) {
+          data.repos = [];
+        }
+
+        return this.$store.dispatch('addRepo', data)
+          .then(() => this.$router.push({
+            name: 'projects',
+          }));
+      },
+
+    },
+
+    watch: {
+
+      allRepos () {
+        if (this.allRepos) {
+          this.repos.forEach(({ name }) => {
+            this.reposToAdd.push(name);
+          });
+        }
       },
 
     },
