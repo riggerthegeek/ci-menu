@@ -1,0 +1,4 @@
+{
+  "TIMEOUT_VALUE": "{{value}} seconds",
+  "UPDATE_TIMEOUT": "Update delay"
+}

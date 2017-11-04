@@ -214,7 +214,7 @@ export default {
   mutations: {
 
     updateNotification (state, data) {
-      logger.trigger('trace', 'Updating repo state');
+      logger.trigger('trace', 'Updating notifications state', data);
 
       Vue.set(state, 'repos', data);
     },

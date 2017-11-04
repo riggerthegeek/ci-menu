@@ -93,6 +93,13 @@
 
     created () {
       this.updateRepos(true);
+
+      /* Watch for changes to the repo store */
+      this.$store.subscribe((mutation) => {
+        if (mutation.type === 'updateSettings') {
+          this.updateRepos(true);
+        }
+      });
     },
 
     data () {
@@ -201,9 +208,7 @@
       updateRepos (resetTimeout = false) {
         if (resetTimeout) {
           this.resetTimeout();
-        }
-
-        if (this.updatingRepos) {
+        } else if (this.updatingRepos) {
           /* Currently updating - don't duplicate */
           logger('trace', 'Repo update - currently in progress');
 
