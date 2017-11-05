@@ -54,7 +54,7 @@
                 v-text-field(
                   :label="$t('repo:USERNAME')",
                   v-model="username",
-                  :disabled="!auth",
+                  v-if="auth",
                   :rules="conditionalRequired",
                   :required="auth"
                 )
@@ -63,7 +63,7 @@
                   :label="$t('repo:PASSWORD')",
                   v-model="password",
                   type="password",
-                  :disabled="!auth",
+                  v-if="auth",
                   :rules="conditionalRequired",
                   :required="auth"
                 )
