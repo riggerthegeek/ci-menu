@@ -55,15 +55,6 @@
                 v-html="repo.subtitle"
               )
 
-            v-list-tile-action(
-              @click.prevent="edit(repo)"
-            )
-              v-btn(
-                icon
-                ripple
-              )
-                v-icon edit
-
       v-container(
         v-else
       )
@@ -120,10 +111,6 @@
     },
 
     methods: {
-
-      edit (repo) {
-        console.log(`edit ${repo.title}`);
-      },
 
       fetchData () {
         const repositories = this.$store.getters.repos
