@@ -216,7 +216,10 @@ export default {
     updateNotification (state, data) {
       logger.trigger('trace', 'Updating notifications state', data);
 
-      Vue.set(state, 'repos', data);
+      Vue.set(state, 'dnd', data.dnd);
+      Vue.set(state, 'dndEnd', data.dndEnd);
+      Vue.set(state, 'dndStart', data.dndStart);
+      Vue.set(state, 'notify', data.notify);
     },
 
   },
