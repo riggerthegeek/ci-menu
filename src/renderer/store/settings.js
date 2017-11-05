@@ -5,7 +5,6 @@
 /* Node modules */
 
 /* Third-party modules */
-import { _ } from 'lodash';
 import { remote } from 'electron';
 import Vue from 'vue/dist/vue.min';
 
@@ -15,13 +14,24 @@ const logger = remote.app.logger;
 
 const storageKey = 'ci-menu-settings';
 
-let stateData = {};
+/* Never below this */
+const minTimeout = 5000;
+
+let stateData = {
+  updateInterval: 0,
+};
 
 try {
   stateData = JSON.parse(localStorage[storageKey]);
 } catch (err) {
   /* Use default */
 }
+
+if (stateData.updateInterval < minTimeout) {
+  stateData.updateInterval = minTimeout;
+}
+
+stateData.minTimeout = minTimeout;
 
 export default {
 
@@ -61,16 +71,15 @@ export default {
     updateSettings (state, data) {
       logger.trigger('trace', 'Updating settings state', data);
 
+      data.minTimeout = minTimeout;
+
       Vue.set(state, 'settings', data);
     },
 
   },
 
   state: {
-    settings: _.defaults(stateData, {
-      minTimeout: 5000,
-      updateInterval: 5000,
-    }),
+    settings: stateData,
   },
 
 };
