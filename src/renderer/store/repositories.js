@@ -36,7 +36,7 @@ export default {
 
   actions: {
 
-    addRepo ({ dispatch }, { all, ignore, repos, url }) {
+    addRepo ({ dispatch }, { all, auth, ignore, repos, url }) {
       return dispatch('getSettings')
         .then((settings) => {
           if (!Array.isArray(settings)) {
@@ -45,6 +45,7 @@ export default {
 
           settings.push({
             all,
+            auth,
             ignore,
             repos,
             url,
@@ -270,6 +271,18 @@ export default {
         timeout: 10000,
       };
 
+      if (_.has(repo, 'auth', 'active') && repo.auth.active) {
+        axiosConfig.auth = {
+          password: repo.auth.password,
+          username: repo.auth.username,
+        };
+      }
+
+      logger.trigger('info', 'Calling CI URL', {
+        url: repo.url,
+        config: axiosConfig,
+      });
+
       return axios.get(repo.url, axiosConfig)
         .catch((err) => {
           /* There was a problem connecting to this endpoint */
@@ -280,10 +293,17 @@ export default {
 
           repo.err = err;
         })
-        .then(({ data } = {}) => dispatch('parseXML', {
-          input: data,
-          repo,
-        }))
+        .then(({ data } = {}) => {
+          logger.info('debug', 'Successfully called CI URL', {
+            url: repo.url,
+            config: axiosConfig,
+          });
+
+          return dispatch('parseXML', {
+            input: data,
+            repo,
+          });
+        })
         .then((repos) => {
           /* Add in the latest repo version */
           repo.repos = repos;
