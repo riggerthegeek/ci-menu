@@ -1,6 +1,6 @@
 {
   "PASSWORD": "Password",
-  "REQUIRES_AUTH": "The server requires validation",
+  "REQUIRES_AUTH": "Requires validation",
   "URL": "URL",
   "USERNAME": "Username"
 }
