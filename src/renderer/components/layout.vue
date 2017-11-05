@@ -96,7 +96,7 @@
 
       /* Watch for changes to the repo store */
       this.$store.subscribe((mutation) => {
-        if (mutation.type === 'updateSettings') {
+        if (mutation.type === 'addUrl') {
           this.updateRepos(true);
         }
       });

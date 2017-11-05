@@ -36,7 +36,7 @@ export default {
 
   actions: {
 
-    addRepo ({ dispatch }, { all, auth, ignore, repos, url }) {
+    addRepo ({ commit, dispatch }, { all, auth, ignore, repos, url }) {
       return dispatch('getSettings')
         .then((settings) => {
           if (!Array.isArray(settings)) {
@@ -72,6 +72,8 @@ export default {
                 reject(err);
                 return;
               }
+
+              commit('addUrl', url);
 
               resolve(settings);
             });
@@ -294,7 +296,7 @@ export default {
           repo.err = err;
         })
         .then(({ data } = {}) => {
-          logger.info('debug', 'Successfully called CI URL', {
+          logger.trigger('debug', 'Successfully called CI URL', {
             url: repo.url,
             config: axiosConfig,
           });
@@ -323,6 +325,10 @@ export default {
   },
 
   mutations: {
+
+    addUrl (state, url) {
+      Vue.set(state, 'url', url);
+    },
 
     updateRepos (state, repos) {
       logger.trigger('trace', 'Updating repo state');
