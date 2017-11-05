@@ -222,7 +222,7 @@ export default {
   },
 
   state: _.defaults(stateData, {
-    dnd: false,
+    dnd: true,
     dndEnd: '08:00',
     dndStart: '22:00',
     notify: 'change',
