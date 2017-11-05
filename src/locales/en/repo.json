@@ -1,6 +1,10 @@
 {
   "PASSWORD": "Password",
   "REQUIRES_AUTH": "Requires validation",
+  "SHOW_ALL_REPOS": "Display all repositories",
+  "STEP_1": "Select URL",
+  "STEP_2": "Select repositories",
+  "STEP_3": "Repositories to ignore",
   "URL": "URL",
   "USERNAME": "Username"
 }

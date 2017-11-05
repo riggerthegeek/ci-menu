@@ -25,8 +25,9 @@
 
             v-stepper-step(
               step="1",
+              :editable="step > 1",
               v-bind:complete="step > 1"
-            ) step 1
+            ) {{ $t('repo:STEP_1') }}
               small {{ url }}
 
             v-stepper-content(
@@ -75,8 +76,9 @@
 
             v-stepper-step(
               step="2",
+              :editable="step > 2",
               v-bind:complete="step > 2"
-            ) step2
+            ) {{ $t('repo:STEP_2') }}
 
             v-stepper-content(
               step="2"
@@ -103,7 +105,7 @@
             v-stepper-step(
               step="3"
               v-bind:complete="step > 3"
-            ) step3
+            ) {{ $t('repo:STEP_3') }}
 
             v-stepper-content(
               step="3"
@@ -150,15 +152,17 @@
           },
         ],
         error: false,
+        password: '',
         reposToAdd: [],
         reposToIgnore: [],
         repos: [],
         step: 0,
-        valid: false,
         url: '',
         urlRules: [
           value => !!value || this.$i18n.t('common:REQUIRED'),
         ],
+        username: '',
+        valid: false,
       };
     },
 
@@ -170,6 +174,11 @@
         }
 
         return this.$store.dispatch('queryRepo', {
+          auth: {
+            active: this.auth,
+            password: this.password,
+            username: this.username,
+          },
           url: this.url,
         }).then(({ repos }) => {
           if (repos.length === 0) {
@@ -187,6 +196,11 @@
       save () {
         const data = {
           all: this.allRepos,
+          auth: {
+            active: this.auth,
+            password: this.password,
+            username: this.username,
+          },
           ignore: this.reposToIgnore,
           repos: this.reposToAdd,
           url: this.url,
