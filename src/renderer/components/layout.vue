@@ -38,26 +38,40 @@
         router-view
           v-container(fluid)
 
+      v-speed-dial(
+        v-model="fab",
+        fixed,
+        bottom,
+        right,
+        transition="slide-y-reverse-transition"
+      )
+
+        v-btn#repo-action(
+          slot="activator",
+          bottom
+          right
+          color="blue darken-2"
+          fab,
+          v-model="fab"
+        )
+          v-icon library_books
+          v-icon close
+
+        v-btn(
+          v-for="item in toolbar"
+          fab
+          small,
+          dark,
+          :color="item.color",
+          @click="item.action()"
+        )
+
+          v-icon {{ item.icon }}
+
     v-footer(app)
       div {{ $t('common:LAST_CHECKED') }}:&nbsp;
         span( v-if="lastChecked") {{ lastChecked.format('HH:mm:ss') }}
         span( v-else ) -
-
-        v-tooltip(
-          v-for="button in toolbar"
-          open-delay="1000"
-          top
-        )
-          v-btn(
-            icon,
-            :color="button.color",
-            @click="button.action",
-            small,
-            slot="activator"
-          )
-            v-icon {{ button.icon }}
-
-          span {{ button.tooltip }}
 
       v-spacer
       div &copy; 2017
@@ -117,6 +131,7 @@
           icon: 'close',
           tooltip: i18n.t('common:CLOSE_WINDOW'),
         }],
+        fab: false,
         history: {},
         interval: null,
         lastChecked: null,
@@ -296,6 +311,17 @@
       overflow: {
         y: auto;
       }
+    }
+  }
+
+  #repo-action {
+    bottom: 26px;
+  }
+
+  .speed-dial__list {
+    margin: {
+      bottom: 25px;
+      left: -15px;
     }
   }
 
