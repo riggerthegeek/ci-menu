@@ -15,9 +15,10 @@
     )
       v-layout(
         row
-       wrap
+        wrap
       )
-        v-flex
+
+        v-flex(xs12)
 
           v-slider(
             :label="$t('settings:UPDATE_TIMEOUT')",
@@ -29,7 +30,54 @@
             :max="maxTimeout"
           )
 
-          div {{ $t('common:APP_NAME') }} v{{ version }}
+          v-data-table(
+            hide-actions,
+            hide-headers,
+            :no-data-text="$t('settings:NO_REPOS')",
+            :items="repoSettings"
+          )
+
+            template(
+              slot="items"
+              scope="props"
+            )
+
+              td(
+                width="10%"
+              )
+
+                v-btn(
+                  small
+                  fab
+                  color="red",
+                  @click.native.stop="dialog = true; activeId = props.item.id;"
+                )
+                  v-icon delete
+
+              td.pointer(
+                @click="editRepo(props.item.id)"
+              ) {{ props.item.url }}
+
+          v-dialog(
+            v-model="dialog",
+            lazy
+          )
+
+            v-card
+              v-card-title.headline {{ $t('settings:DELETE_REPO') }}
+              v-card-text {{ getRepo(activeId).url }}
+              v-card-text {{ $t('settings:DO_YOU_WANT_TO_DELETE_REPO') }}
+              v-card-actions
+                v-spacer
+                v-btn(
+                  color="gray darken-1",
+                  flat,
+                  @click.native="dialog = false"
+                ) {{ $t('buttons:CANCEL') }}
+                v-btn(
+                  color="red darken-1",
+                  @click="deleteRepo(activeId)"
+                ) {{ $t('buttons:OK') }}
 
 </template>
 
@@ -48,17 +96,46 @@
   export default {
 
     data () {
+      this.$store.subscribe((mutation) => {
+        if (mutation.type === 'updateRepoSettings') {
+          this.repoSettings = this.$store.getters.repoSettings;
+        }
+      });
+
       return {
+        activeId: null,
         data: {
           timeout: this.$store.getters.updateInterval,
         },
+        dialog: false,
         minTimeout: this.$store.getters.minTimeout,
         maxTimeout: 60 * 1000,
+        repoSettings: this.$store.getters.repoSettings,
         version: remote.app.getVersion(),
       };
     },
 
     methods: {
+
+      deleteRepo (repoId) {
+        return this.$store.dispatch('deleteRepo', repoId)
+          .then(() => {
+//            this.dialog = false;
+          });
+      },
+
+      editRepo (repoId) {
+        return this.$router.push({
+          name: 'repo',
+          query: {
+            repoId,
+          },
+        });
+      },
+
+      getRepo (repoId) {
+        return this.repoSettings.find(({ id }) => repoId === id) || {};
+      },
 
       save () {
         return this.$store.dispatch('saveSettings', {
@@ -74,3 +151,9 @@
 
   };
 </script>
+
+<style lang="scss">
+  .pointer {
+    cursor: pointer;
+  }
+</style>
