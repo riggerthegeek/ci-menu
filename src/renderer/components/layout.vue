@@ -109,8 +109,8 @@
       this.updateRepos(true);
 
       /* Watch for changes to the repo store */
-      this.$store.subscribe((mutation) => {
-        if (mutation.type === 'addUrl') {
+      this.$store.subscribe(({ type }) => {
+        if (type === 'addUrl' || type === 'updateSettings') {
           this.updateRepos(true);
         }
       });
