@@ -118,9 +118,9 @@
     methods: {
 
       deleteRepo (repoId) {
-        return this.$store.dispatch('deleteRepo', repoId)
+        return this.$store.dispatch('deleteRepoFromSettings', repoId)
           .then(() => {
-//            this.dialog = false;
+            this.dialog = false;
           });
       },
 

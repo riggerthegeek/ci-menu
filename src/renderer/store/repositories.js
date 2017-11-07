@@ -10,6 +10,7 @@ import { _ } from 'lodash';
 import axios from 'axios';
 import fs from 'fs-extra';
 import { remote } from 'electron';
+import uuid from 'uuid';
 import Vue from 'vue/dist/vue.min';
 import xmlParser from 'xml2js';
 
@@ -37,7 +38,7 @@ export default {
   actions: {
 
     addRepo ({ commit, dispatch }, { all, auth, ignore, repos, url }) {
-      return dispatch('getSettings')
+      return dispatch('getRepoSettings')
         .then((settings) => {
           if (!Array.isArray(settings)) {
             settings = [];
@@ -46,47 +47,34 @@ export default {
           settings.push({
             all,
             auth,
+            id: uuid.v4(),
             ignore,
             repos,
             url,
           });
 
-          const filePath = path.join(config.dataPath, config.dataFile);
+          commit('addUrl', url);
 
-          return new Promise((resolve, reject) => {
-            /* Return the data */
-            logger.trigger('trace', 'repo store saveSettings', {
-              filePath,
-            });
-
-            const data = JSON.stringify(settings, null, 2);
-
-            fs.writeFile(filePath, data, 'utf8', (err) => {
-              if (err) {
-                logger.trigger('error', 'repo store saveSettings error', {
-                  err,
-                  filePath,
-                  data,
-                });
-
-                reject(err);
-                return;
-              }
-
-              commit('addUrl', url);
-
-              resolve(settings);
-            });
-          });
+          return dispatch('saveRepoSettings', settings);
         });
     },
 
-    getSettings () {
+    deleteRepoFromSettings ({ dispatch }, repoId) {
+      return dispatch('getRepoSettings')
+        .then((settings) => {
+          const newSettings = settings.filter(({ id }) => id !== repoId);
+
+          return dispatch('saveRepoSettings', newSettings);
+        })
+        .then(() => dispatch('getRepoSettings'));
+    },
+
+    getRepoSettings ({ commit }) {
       const filePath = path.join(config.dataPath, config.dataFile);
 
       return new Promise((resolve, reject) => {
         /* Return the data */
-        logger.trigger('trace', 'repo store getSettings', {
+        logger.trigger('trace', 'repo store getRepoSettings', {
           filePath,
         });
 
@@ -98,34 +86,54 @@ export default {
 
           resolve(data);
         });
-      })
+      }).then((str) => {
         /* Convert to JSON */
-        .then(str => JSON.parse(str))
-        .catch((err) => {
-          if (err.code === 'ENOENT') {
-            /* File not present - ensure path exists */
-            logger.trigger('trace', 'repo store getSettings file doesn\'t exist', {
-              filePath,
-            });
+        let repos;
 
-            return fs.mkdirp(config.dataPath)
-              .then(() => null);
-          }
+        try {
+          const settings = JSON.parse(str);
 
-          logger.trigger('error', 'repo store getSettings error', {
-            err,
+          repos = settings.sort((a, b) => {
+            if (a.url < b.url) {
+              return -1;
+            } else if (a.url > b.url) {
+              return 1;
+            }
+
+            return 0;
+          });
+        } catch (err) {
+          repos = [];
+        }
+
+        commit('updateRepoSettings', _.cloneDeep(repos));
+
+        return repos;
+      }).catch((err) => {
+        if (err.code === 'ENOENT') {
+          /* File not present - ensure path exists */
+          logger.trigger('trace', 'repo store getRepoSettings file doesn\'t exist', {
             filePath,
           });
 
-          /* Unknown error - just reject with error */
-          return Promise.reject(err);
+          return fs.mkdirp(config.dataPath)
+            .then(() => null);
+        }
+
+        logger.trigger('error', 'repo store getRepoSettings error', {
+          err,
+          filePath,
         });
+
+        /* Unknown error - just reject with error */
+        return Promise.reject(err);
+      });
     },
 
     loadLatestStatus ({ commit, dispatch }) {
       logger.trigger('trace', 'repo store loadLatestStatus');
 
-      return dispatch('getSettings')
+      return dispatch('getRepoSettings')
         .then((settings) => {
           /* Ensure the settings is an array */
           if (!Array.isArray(settings)) {
@@ -314,11 +322,41 @@ export default {
         });
     },
 
+    saveRepoSettings (store, settings) {
+      const filePath = path.join(config.dataPath, config.dataFile);
+
+      return new Promise((resolve, reject) => {
+        /* Return the data */
+        logger.trigger('trace', 'repo store saveRepoSettings', {
+          filePath,
+        });
+
+        const data = JSON.stringify(settings, null, 2);
+
+        fs.writeFile(filePath, data, 'utf8', (err) => {
+          if (err) {
+            logger.trigger('error', 'repo store saveRepoSettings error', {
+              err,
+              filePath,
+              data,
+            });
+
+            reject(err);
+            return;
+          }
+
+          resolve(settings);
+        });
+      });
+    },
+
   },
 
   getters: {
 
     repos: state => state.repos,
+
+    repoSettings: state => state.repoSettings,
 
     updated: state => state.updated,
 
@@ -338,10 +376,17 @@ export default {
       Vue.set(state, 'updated', true);
     },
 
+    updateRepoSettings (state, repoSettings) {
+      logger.trigger('trace', 'Updating repo settings');
+
+      Vue.set(state, 'repoSettings', repoSettings);
+    },
+
   },
 
   state: {
     repos: [],
+    repoSettings: [],
     updated: false,
   },
 
