@@ -25,7 +25,7 @@
 
             v-stepper-step(
               step="1",
-              :editable="step > 1",
+              :editable="step > 1 || editable",
               v-bind:complete="step > 1"
             ) {{ $t('repo:STEP_1') }}
               small {{ url }}
@@ -44,29 +44,29 @@
                   :label="$t('repo:URL')",
                   required,
                   :rules="urlRules",
-                  v-model="url"
+                  v-model="settings.url"
                 )
 
                 v-switch(
                   :label="$t('repo:REQUIRES_AUTH')",
-                  v-model="auth"
+                  v-model="settings.auth"
                 )
 
                 v-text-field(
                   :label="$t('repo:USERNAME')",
-                  v-model="username",
-                  v-if="auth",
+                  v-model="settings.username",
+                  v-if="settings.auth",
                   :rules="conditionalRequired",
-                  :required="auth"
+                  :required="settings.auth"
                 )
 
                 v-text-field(
                   :label="$t('repo:PASSWORD')",
-                  v-model="password",
+                  v-model="settings.password",
                   type="password",
-                  v-if="auth",
+                  v-if="settings.auth",
                   :rules="conditionalRequired",
-                  :required="auth"
+                  :required="settings.auth"
                 )
 
                 v-btn(
@@ -76,7 +76,7 @@
 
             v-stepper-step(
               step="2",
-              :editable="step > 2",
+              :editable="step > 2 || editable",
               v-bind:complete="step > 2"
             ) {{ $t('repo:STEP_2') }}
 
@@ -86,15 +86,15 @@
 
               v-switch(
                 :label="$t('repo:SHOW_ALL_REPOS')",
-                v-model="allRepos"
+                v-model="settings.allRepos"
               )
 
               v-checkbox(
                 v-for="repo in repos",
                 :label="repo.name",
                 :value="repo.name",
-                v-model="reposToAdd",
-                v-if="!allRepos"
+                v-model="settings.reposToAdd",
+                v-if="!settings.allRepos"
               )
 
               v-btn(
@@ -108,14 +108,15 @@
             ) {{ $t('repo:STEP_3') }}
 
             v-stepper-content(
-              step="3"
+              step="3",
+              :editable="editable"
             )
 
               v-checkbox(
                 v-for="repo in repos",
                 :label="repo.name",
                 :value="repo.name",
-                v-model="reposToIgnore"
+                v-model="settings.reposToIgnore"
               )
 
               v-btn(
@@ -140,8 +141,6 @@
 
     data () {
       return {
-        allRepos: false,
-        auth: false,
         conditionalRequired: [
           (value) => {
             if (!this.auth) {
@@ -151,17 +150,22 @@
             return !!value || this.$i18n.t('common:REQUIRED');
           },
         ],
+        editable: false,
         error: false,
-        password: '',
-        reposToAdd: [],
-        reposToIgnore: [],
         repos: [],
+        settings: {
+          allRepos: true,
+          auth: false,
+          password: '',
+          reposToAdd: [],
+          reposToIgnore: [],
+          url: '',
+          username: '',
+        },
         step: 0,
-        url: '',
         urlRules: [
           value => !!value || this.$i18n.t('common:REQUIRED'),
         ],
-        username: '',
         valid: false,
       };
     },
@@ -175,18 +179,17 @@
 
         return this.$store.dispatch('queryRepo', {
           auth: {
-            active: this.auth,
-            password: this.password,
-            username: this.username,
+            active: this.settings.auth,
+            password: this.settings.password,
+            username: this.settings.username,
           },
-          url: this.url,
+          url: this.settings.url,
         }).then(({ repos }) => {
           if (repos.length === 0) {
             throw new Error('NO_REPOS');
           }
 
           this.repos = repos;
-          this.allRepos = true;
           this.step = 2;
         }).catch((err) => {
           this.error = err;
@@ -195,15 +198,15 @@
 
       save () {
         const data = {
-          all: this.allRepos,
+          all: this.settings.allRepos,
           auth: {
-            active: this.auth,
-            password: this.password,
-            username: this.username,
+            active: this.settings.auth,
+            password: this.settings.password,
+            username: this.settings.username,
           },
-          ignore: this.reposToIgnore,
-          repos: this.reposToAdd.map(name => ({ name })),
-          url: this.url,
+          ignore: this.settings.reposToIgnore,
+          repos: this.settings.reposToAdd.map(name => ({ name })),
+          url: this.settings.url,
         };
 
         if (data.all) {
