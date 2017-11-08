@@ -202,7 +202,7 @@
             username: this.username,
           },
           ignore: this.reposToIgnore,
-          repos: this.reposToAdd,
+          repos: this.reposToAdd.map(name => ({ name })),
           url: this.url,
         };
 
