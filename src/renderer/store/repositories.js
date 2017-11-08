@@ -37,28 +37,6 @@ export default {
 
   actions: {
 
-    addRepo ({ commit, dispatch }, { all, auth, ignore, repos, url }) {
-      return dispatch('getRepoSettings')
-        .then((settings) => {
-          if (!Array.isArray(settings)) {
-            settings = [];
-          }
-
-          settings.push({
-            all,
-            auth,
-            id: uuid.v4(),
-            ignore,
-            repos,
-            url,
-          });
-
-          commit('addUrl', url);
-
-          return dispatch('saveRepoSettings', settings);
-        });
-    },
-
     deleteRepoFromSettings ({ dispatch }, repoId) {
       return dispatch('getRepoSettings')
         .then((settings) => {
@@ -319,6 +297,51 @@ export default {
           repo.repos = repos;
 
           return repo;
+        });
+    },
+
+    saveRepo ({ commit, dispatch }, { data, id }) {
+      const { all, auth, ignore, repos, url } = data;
+
+      return dispatch('getRepoSettings')
+        .then((settings) => {
+          if (!Array.isArray(settings)) {
+            settings = [];
+          }
+
+          if (id) {
+            /* Update existing repo setting */
+            settings = settings.reduce((result, setting) => {
+              if (setting.id === id) {
+                setting = {
+                  all,
+                  auth,
+                  id,
+                  ignore,
+                  repos,
+                  url,
+                };
+              }
+
+              result.push(setting);
+
+              return result;
+            }, []);
+          } else {
+            /* Add new repo setting */
+            settings.push({
+              all,
+              auth,
+              id: uuid.v4(),
+              ignore,
+              repos,
+              url,
+            });
+          }
+
+          commit('addUrl', url);
+
+          return dispatch('saveRepoSettings', settings);
         });
     },
 

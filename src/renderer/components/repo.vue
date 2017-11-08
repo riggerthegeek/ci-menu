@@ -25,7 +25,7 @@
 
             v-stepper-step(
               step="1",
-              :editable="step > 1 || editable",
+              :editable="step > 1",
               v-bind:complete="step > 1"
             ) {{ $t('repo:STEP_1') }}
               small {{ url }}
@@ -76,7 +76,7 @@
 
             v-stepper-step(
               step="2",
-              :editable="step > 2 || editable",
+              :editable="step > 2",
               v-bind:complete="step > 2"
             ) {{ $t('repo:STEP_2') }}
 
@@ -103,13 +103,12 @@
               ) {{ $t('buttons:NEXT') }}
 
             v-stepper-step(
-              step="3"
+              step="3",
               v-bind:complete="step > 3"
             ) {{ $t('repo:STEP_3') }}
 
             v-stepper-content(
-              step="3",
-              :editable="editable"
+              step="3"
             )
 
               v-checkbox(
@@ -139,6 +138,16 @@
 
   export default {
 
+    created () {
+      this.$store.subscribe(({ type }) => {
+        if (type === 'updateRepoSettings') {
+          this.load();
+        }
+      });
+
+      this.load();
+    },
+
     data () {
       return {
         conditionalRequired: [
@@ -152,6 +161,7 @@
         ],
         editable: false,
         error: false,
+        repoId: null,
         repos: [],
         settings: {
           allRepos: true,
@@ -196,6 +206,34 @@
         });
       },
 
+      load () {
+        this.repoId = this.$route.query.repoId;
+
+        if (!this.repoId || this.editable) {
+          /* Already loaded - don't reload */
+          return;
+        }
+
+        this.editable = this.$store.getters.repoSettings
+          .find(({ id }) => id === this.repoId);
+
+        if (!this.editable) {
+          this.error = new Error('UNKNOWN_REPO');
+          return;
+        }
+
+        this.error = false;
+        this.settings = {
+          allRepos: this.editable.all,
+          auth: this.editable.auth.active,
+          password: this.editable.auth.password,
+          reposToIgnore: this.editable.ignore,
+          reposToAdd: this.editable.repos.map(({ name }) => name),
+          url: this.editable.url,
+          username: this.editable.username,
+        };
+      },
+
       save () {
         const data = {
           all: this.settings.allRepos,
@@ -213,10 +251,12 @@
           data.repos = [];
         }
 
-        return this.$store.dispatch('addRepo', data)
-          .then(() => this.$router.push({
-            name: 'projects',
-          }));
+        return this.$store.dispatch('saveRepo', {
+          data,
+          id: this.repoId,
+        }).then(() => this.$router.push({
+          name: 'projects',
+        }));
       },
 
     },

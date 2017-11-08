@@ -1,4 +1,5 @@
 {
   "NO_REPOS": "No repositories - please check you have the correct URL",
+  "UNKNOWN_REPO": "Unknown repository",
   "UNKNOWN": "Unknown error"
 }
