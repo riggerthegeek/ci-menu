@@ -1,7 +1,7 @@
 {
   "name": "ci-menu",
   "productName": "CI Menu",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Cross platform tray monitor for CI projects",
   "main": "./src/app/main.js",
   "private": true,
