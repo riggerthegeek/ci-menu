@@ -2,6 +2,21 @@
 
 Cross platform tray monitor for CI projects
 
+# Running
+
+Download the [latest release](https://github.com/riggerthegeek/ci-menu/releases) for your operating system.
+
+## Command Line Options
+
+```sh
+ci-menu --help <cmd> [args]
+
+Options:
+  --hide, -H  Hides the main windows on start         [boolean] [default: false]
+  --version   Show version number                     [boolean]
+  --help      Show help                               [boolean]
+```
+
 # XML Format
 
 > Taken from [Erik Doe's CCMenu repo](https://github.com/erikdoe/ccmenu/wiki/Multiple-Project-Summary-Reporting-Standard)
