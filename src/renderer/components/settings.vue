@@ -31,6 +31,7 @@
           )
 
           v-data-table(
+            v-if="repoSettings.length > 0",
             hide-actions,
             hide-headers,
             :no-data-text="$t('settings:NO_REPOS')",
@@ -57,6 +58,17 @@
               td.pointer(
                 @click="editRepo(props.item.id)"
               ) {{ props.item.url }}
+
+          v-container(
+            v-else
+          )
+            v-btn(
+              block
+              color="primary",
+              @click="newRepo()"
+            ) {{ $t('common:ADD_REPO') }}
+
+              v-icon add
 
           v-dialog(
             v-model="dialog",
@@ -135,6 +147,12 @@
 
       getRepo (repoId) {
         return this.repoSettings.find(({ id }) => repoId === id) || {};
+      },
+
+      newRepo () {
+        return this.$router.push({
+          name: 'repo',
+        });
       },
 
       save () {
