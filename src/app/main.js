@@ -32,6 +32,7 @@ yargs
   })
   .version(app.getVersion())
   .help()
+  .parse(process.argv.slice(1))
   .argv;
 
 /* Set the logger */
